@@ -1,0 +1,29 @@
+{
+  "name": "textilemprendefondodeempleados",
+  "version": "1.0.0",
+  "description": "🚀 **Bienvenido al repositorio oficial del proyecto TextilEmprende** 🚀",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MRONAL/TextilEmprendeFondoDeEmpleados.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MRONAL/TextilEmprendeFondoDeEmpleados/issues"
+  },
+  "homepage": "https://github.com/MRONAL/TextilEmprendeFondoDeEmpleados#readme",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "pg": "^8.14.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
