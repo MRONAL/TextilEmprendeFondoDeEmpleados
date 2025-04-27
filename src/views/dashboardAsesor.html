@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Asesor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        .button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 15px 32px;
+            text-align: center;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 20px;
+            text-decoration: none;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        h1 {
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Bienvenido, Asesor</h1>
+    <p>Seleccione una opción para continuar</p>
+
+    <a href="/asesor/perfil" class="button">Ver Perfil</a>
+    <a href="/asesor/clientes" class="button">Gestionar Clientes</a>
+    <a href="/asesor/estadisticas" class="button">Estadísticas</a>
+    <a href="/logout" class="button">Cerrar sesión</a>
+
+    <script>
+        // Verificación del token en el frontend
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = "/login.html"; // Redirigir a login si no hay token
+        } else {
+            const decoded = jwt.decode(token);
+            if (decoded.tipo !== 'asesor') {
+                window.location.href = "/login.html"; // Redirigir a login si no es asesor
+            }
+        }
+    </script>
+
+</body>
+</html>

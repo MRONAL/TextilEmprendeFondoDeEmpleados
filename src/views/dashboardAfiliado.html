@@ -1,11 +1,57 @@
-<!-- src/views/dashboardAfiliado.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard Afiliado</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Afiliado</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 32px;
+            text-align: center;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 20px;
+            text-decoration: none;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        h1 {
+            margin-bottom: 30px;
+        }
+    </style>
 </head>
 <body>
-  <h1>Bienvenido Afiliado</h1>
+
+    <h1>Bienvenido, Afiliado</h1>
+    <p>Seleccione una opción para continuar</p>
+
+    <a href="/afiliado/perfil" class="button">Ver Perfil</a>
+    <a href="/afiliado/beneficios" class="button">Beneficios</a>
+    <a href="/afiliado/estadisticas" class="button">Estadísticas</a>
+    <a href="/logout" class="button">Cerrar sesión</a>
+
+    <script>
+        // Verificación del token en el frontend
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = "/login.html"; // Redirigir a login si no hay token
+        } else {
+            const decoded = jwt.decode(token);
+            if (decoded.tipo !== 'afiliado') {
+                window.location.href = "/login.html"; // Redirigir a login si no es afiliado
+            }
+        }
+    </script>
+
 </body>
 </html>
+

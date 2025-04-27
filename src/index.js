@@ -1,41 +1,32 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const path = require('path');
 const authRoutes = require('./routes/authRoutes');
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware para leer JSON y formularios
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-// Archivos estáticos (si los usas en 'public')
-app.use(express.static(path.join(__dirname, 'public')));
+// Rutas
+app.use("/api", authRoutes);
 
-// Página de inicio de sesión
+// Rutas para servir vistas
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'login.html'));
+    res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
 
-// Dashboard del afiliado
-app.get('/dashboardAfiliado.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'dashboardAfiliado.html'));
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'login.html'));
 });
 
-// Dashboard del administrador (cuando lo tengas)
-app.get('/dashboardAdmin.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'dashboardAdmin.html'));
+app.get('/register', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'singup.html'));
 });
 
-// Dashboard de soporte técnico (cuando lo tengas)
-app.get('/dashboardSoporte.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'dashboardSoporte.html'));
-});
-
-// Rutas de autenticación
-app.use('/api', authRoutes);
-
-// Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
