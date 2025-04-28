@@ -27,6 +27,14 @@ app.get('/register', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'singup.html'));
 });
 
+app.get('/dashboardAfiliado', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'dashboardAfiliado.html'));
+});
+
+app.get('/dashboardAsesor', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'dashboardAsesor.html'));
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

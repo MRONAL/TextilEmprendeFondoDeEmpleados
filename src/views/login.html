@@ -86,7 +86,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
       if (decoded.tipo === 'afiliado') {
         window.location.href = "/dashboardAfiliado";
       } else if (decoded.tipo === 'asesor') {
-        window.location.href = "/dashboardAsesor.html";
+        window.location.href = "/dashboardAsesor";
       }
     } else {
       document.getElementById('error').innerText = data.error || 'Error en las credenciales';

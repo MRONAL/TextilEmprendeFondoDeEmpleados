@@ -1,10 +1,10 @@
-const { registerAfiliado, loginUser } = require('../models/auth');
+const { registerUser, loginUser } = require('../models/auth');
 
 const register = async (req, res) => {
-    const { nombre, cedula, correo, password } = req.body;
+    const { nombre, cedula, correo, password, rol } = req.body;
     try {
-        const newAfiliado = await registerAfiliado(nombre, cedula, correo, password);
-        res.status(201).json({ message: 'Afiliado registrado', afiliado: newAfiliado });
+        const newUser = await registerUser(nombre, cedula, correo, password, rol);
+        res.status(201).json({ message: 'Usuario registrado correctamente', user: newUser });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
