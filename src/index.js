@@ -34,6 +34,10 @@ app.get('/dashboardAfiliado', (req, res) => {
 app.get('/dashboardAsesor', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'dashboardAsesor.html'));
 });
+app.get('/dashboardAdmin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'dashboardAdmin.html'));
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

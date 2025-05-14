@@ -1,4 +1,3 @@
-// auth.js
 const bcrypt = require('bcrypt');
 const client = require('./DbConexion');
 const jwt = require('jsonwebtoken');
@@ -9,19 +8,23 @@ const registerUser = async (nombre, cedula, correo, password, rol) => {
         table = 'afiliado';
     } else if (rol === 'asesor') {
         table = 'asesor';
+    } else if (rol === 'administrador') {
+        table = 'administrador';
     } else {
         throw new Error('Rol no válido');
     }
 
-    // Verificar si ya existe correo o cédula
-    const res = await client.query(`SELECT * FROM ${table} WHERE correo = $1 OR cedula = $2`, [correo, cedula]);
+    const res = await client.query(
+        `SELECT * FROM ${table} WHERE correo = $1 OR cedula = $2`,
+        [correo, cedula]
+    );
+
     if (res.rows.length > 0) {
         throw new Error('Correo o cédula ya registrados');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insertar en la tabla correspondiente
     const result = await client.query(
         `INSERT INTO ${table} (nombre, cedula, correo, password_hash) VALUES ($1, $2, $3, $4) RETURNING *`,
         [nombre, cedula, correo, hashedPassword]
@@ -31,7 +34,6 @@ const registerUser = async (nombre, cedula, correo, password, rol) => {
 };
 
 const loginUser = async (email, password) => {
-    // Intentar buscar en ambas tablas
     let user = null;
     let table = '';
 
@@ -44,6 +46,12 @@ const loginUser = async (email, password) => {
         if (resAsesor.rows.length > 0) {
             user = resAsesor.rows[0];
             table = 'asesor';
+        } else {
+            const resAdmin = await client.query('SELECT * FROM administrador WHERE correo = $1', [email]);
+            if (resAdmin.rows.length > 0) {
+                user = resAdmin.rows[0];
+                table = 'administrador';
+            }
         }
     }
 
@@ -56,7 +64,9 @@ const loginUser = async (email, password) => {
         throw new Error('Contraseña incorrecta');
     }
 
-    const token = jwt.sign({ id: user.id, correo: user.correo, tipo: table }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const userId = user.id_afiliado || user.id_asesor || user.id_administrador;
+
+    const token = jwt.sign({ id: userId, correo: user.correo, tipo: table }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     return { token };
 };

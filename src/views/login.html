@@ -88,6 +88,9 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
       } else if (decoded.tipo === 'asesor') {
         window.location.href = "/dashboardAsesor";
       }
+        else if (decoded.tipo === 'administrador') {
+        window.location.href = "/dashboardAdmin.html";
+      }
     } else {
       document.getElementById('error').innerText = data.error || 'Error en las credenciales';
     }
