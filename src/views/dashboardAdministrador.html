@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel de Administrador - Textilemprende</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    background: #ffffff;
+  }
+
+  .services {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
+    max-width: 1000px;
+    margin: 0 auto 50px auto;
+  }
+
+  .service {
+    background: #f5f5f5;
+    padding: 25px;
+    border-radius: 12px;
+    transition: transform 0.2s ease;
+    text-align: center;
+  }
+
+  .service:hover {
+    transform: translateY(-5px);
+  }
+
+  .service img {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 15px;
+  }
+
+  .service p {
+    color: #1e2c5e;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  .help {
+    background-color: #1e2c5e;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    display: inline-block;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .help span {
+    margin-left: 10px;
+  }
+
+  @media (max-width: 600px) {
+    .services {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .logo-textile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-textile div {
+    line-height: 1.1;
+  }
+
+  .logo-textile small {
+    font-size: 0.8rem;
+    display: block;
+    color: #555;
+  }
+
+  #historialMensajes {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+  }
+
+  .mensaje {
+    display: flex;
+    margin-bottom: 10px;
+    max-width: 80%;
+  }
+
+  .mensaje.afiliado {
+    justify-content: flex-start;
+  }
+
+  .mensaje.asesor {
+    justify-content: flex-end;
+    margin-left: auto;
+  }
+
+  .mensaje.admin {
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .mensaje .contenido {
+    background-color: #e9ecef;
+    border-radius: 15px;
+    padding: 10px;
+    position: relative;
+  }
+
+  .mensaje.asesor .contenido {
+    background-color: #0d6efd;
+    color: white;
+  }
+
+  .mensaje.admin .contenido {
+    background-color: #ffc107;
+    color: black;
+  }
+
+  .mensaje .texto {
+    white-space: pre-wrap;
+  }
+
+  .mensaje .meta {
+    font-size: 0.75rem;
+    margin-top: 5px;
+    opacity: 0.8;
+  }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom mb-4">
+  <div class="container d-flex justify-content-between">
+    <a class="navbar-brand fw-bold logo-textile" href="#">
+      <img src="https://img.icons8.com/ios-filled/40/1e2c5e/sewing-machine.png" alt="Logo Textil" />
+      <div>
+        TEXTILEMPRENDE<br>
+        <small>FONDO DE EMPLEADOS</small>
+      </div>
+    </a>
+    <div class="d-flex align-items-center gap-3">
+      <span id="username" class="fw-bold text-dark"></span>
+      <span>👤</span>
+      <a href="/login" class="btn btn-outline-primary">Cerrar sesión</a>
+    </div>
+  </div>
+</nav>
+
+<main class="container text-center">
+  <h2 class="text-primary mb-5">Panel del Administrador</h2>
+
+  <div class="services">
+    <button class="service-btn text-decoration-none" data-section="clientes">
+      <div class="service">
+        <img src="https://img.icons8.com/ios-filled/50/1e2c5e/conference.png" alt="Clientes" />
+        <p>Información<br>de Clientes</p>
+      </div>
+    </button>
+
+    <button class="service-btn text-decoration-none" data-section="solicitudes">
+      <div class="service">
+        <img src="https://img.icons8.com/ios-filled/50/1e2c5e/document.png" alt="Solicitudes" />
+        <p>Solicitudes<br>de Clientes</p>
+      </div>
+    </button>
+
+    <button class="service-btn text-decoration-none" data-section="responder">
+      <div class="service">
+        <img src="https://img.icons8.com/ios-filled/50/1e2c5e/ok.png" alt="Responder" />
+        <p>Responder y<br>Verificar</p>
+      </div>
+    </button>
+  </div>
+
+  <div id="contenido-dinamico" class="mt-5 text-start p-4 border rounded bg-light" style="display: none;"></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
+<script>
+  const token = localStorage.getItem('token');
+  if (token) {
+    const decoded = jwt_decode(token);
+    document.getElementById('username').textContent = decoded.nombre || decoded.correo || decoded.id_administrador || "Administrador";
+
+  } else {
+    document.getElementById('username').textContent = "Invitado";
+  }
+</script>
+
+<script>
+const botones = document.querySelectorAll('.service-btn');
+const contenedor = document.getElementById('contenido-dinamico');
+
+const secciones = {
+  clientes: async () => {
+    try {
+      const res = await fetch('/api/admin/usuarios');
+      const data = await res.json();
+
+      let html = `
+        <h4 class="mb-3">Información de Clientes</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped">
+            <thead class="table-primary">
+              <tr><th>ID</th><th>Nombre</th><th>Cédula</th><th>Correo</th></tr>
+            </thead>
+            <tbody>
+              ${data.clientes.map(c => `
+                <tr>
+                  <td>${c.id}</td>
+                  <td>${c.nombre}</td>
+                  <td>${c.cedula}</td>
+                  <td>${c.correo}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <h4 class="mt-5 mb-3">Información de Asesores</h4>
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped">
+            <thead class="table-secondary">
+              <tr><th>ID</th><th>Nombre</th><th>Cédula</th><th>Correo</th></tr>
+            </thead>
+            <tbody>
+              ${data.asesores.map(a => `
+                <tr>
+                  <td>${a.id}</td>
+                  <td>${a.nombre}</td>
+                  <td>${a.cedula}</td>
+                  <td>${a.correo}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      contenedor.innerHTML = html;
+      contenedor.style.display = 'block';
+      contenedor.scrollIntoView({ behavior: 'smooth' });
+
+    } catch (err) {
+      console.error(err);
+      contenedor.innerHTML = `<p class="text-danger">Error al cargar los datos.</p>`;
+      contenedor.style.display = 'block';
+    }
+  },
+
+solicitudes: async () => {
+  try {
+    const [resTickets, resUsuarios] = await Promise.all([
+      fetch('/api/admin/solicitudes'),
+      fetch('/api/admin/usuarios')
+    ]);
+    const tickets = await resTickets.json();
+    const asesores = (await resUsuarios.json()).asesores;
+
+    let html = `
+    <div class="row">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title mb-4">Solicitudes de Soporte</h5>
+            <div class="table-responsive">
+              <table class="table align-middle table-bordered">
+                <thead class="table-light">
+                  <tr>
+                    <th>ID</th>
+                    <th>Afiliado</th>
+                    <th>Fecha</th>
+                    <th>Categoría</th>
+                    <th>Estado</th>
+                    <th>Asesor</th>
+                    <th>Prioridad</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${tickets.map(ticket => `
+                    <tr>
+                      <td>${ticket.id_ticket}</td>
+                      <td>${ticket.nombre_afiliado}</td>
+                      <td>${new Date(ticket.fecha_creacion).toLocaleDateString()}</td>
+                      <td>${ticket.categoria}</td>
+                      <td>${ticket.estado}</td>
+                      <td>${ticket.nombre_asesor || 'Sin asignar'}</td>
+                      <td>${ticket.prioridad || 'No definida'}</td>
+                      <td>
+                        <button class="btn btn-sm btn-primary modificar-btn" data-ticket='${JSON.stringify(ticket)}'>Modificar</button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalModificar" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">Modificar Solicitud</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <form id="formModificar">
+              <input type="hidden" id="ticketId" />
+              <div class="mb-3">
+                <label class="form-label">Descripción</label>
+                <textarea class="form-control" id="descripcion" rows="3"></textarea>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Estado</label>
+                <select class="form-select" id="estado">
+                  <option value="Pendiente">Pendiente</option>
+                  <option value="En proceso">En proceso</option>
+                  <option value="Resuelto">Resuelto</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Asignar Asesor</label>
+                <select class="form-select" id="asesor">
+                  <option value="">Sin asignar</option>
+                  ${asesores.map(a => `<option value="${a.id}">${a.nombre}</option>`).join('')}
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Prioridad</label>
+                <select class="form-select" id="prioridad">
+                  <option value="Baja">Baja</option>
+                  <option value="Media">Media</option>
+                  <option value="Alta">Alta</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Historial de mensajes</label>
+                <div id="historialMensajes" class="border p-2 rounded" style="max-height: 250px; overflow-y: auto; background-color: #f9f9f9;">
+                  <p class="text-muted">No hay mensajes aún.</p>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Respuesta del administrador</label>
+                <textarea class="form-control" id="respuesta" rows="3"></textarea>
+              </div>
+              <button type="submit" class="btn btn-success">Guardar cambios</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+
+    contenedor.innerHTML = html;
+    contenedor.style.display = 'block';
+    contenedor.scrollIntoView({ behavior: 'smooth' });
+
+    // Activar modales
+    const modal = new bootstrap.Modal(document.getElementById('modalModificar'));
+    document.querySelectorAll('.modificar-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const ticket = JSON.parse(btn.getAttribute('data-ticket'));
+        document.getElementById('ticketId').value = ticket.id_ticket;
+        document.getElementById('descripcion').value = ticket.descripcion || '';
+        document.getElementById('estado').value = ticket.estado || '';
+        document.getElementById('asesor').value = asesores.find(a => a.nombre_asesor === ticket.nombre_asesor)?.id || '';
+        document.getElementById('prioridad').value = ticket.prioridad || '';
+        document.getElementById('respuesta').value = '';
+        
+
+        // Historial de mensajes
+        const historial = document.getElementById('historialMensajes');
+        if (Array.isArray(ticket.respuestas) && ticket.respuestas.length > 0) {
+          const mensajesOrdenados = ticket.respuestas.sort((a, b) => new Date(a.fecha_respuesta) - new Date(b.fecha_respuesta));
+          historial.innerHTML = mensajesOrdenados.map(r => {
+  let autor = 'Desconocido';
+  let clase = 'desconocido';
+
+  if (r.id_afiliado) {
+    autor = 'Afiliado';
+    clase = 'afiliado';
+  } else if (r.id_asesor) {
+    autor = 'Asesor';
+    clase = 'asesor';
+  } else if (r.id_administrador) {
+    autor = 'Administrador';
+    clase = 'admin';
+  }
+
+  const fecha = new Date(r.fecha_respuesta).toLocaleString();
+
+  return `
+    <div class="mensaje ${clase}">
+      <div class="contenido">
+        <div class="texto">${r.respuesta}</div>
+        <div class="meta"><strong>${autor}</strong> · <small>${fecha}</small></div>
+      </div>
+    </div>
+  `;
+}).join('');
+
+
+        } else {
+          historial.innerHTML = `<p class="text-muted">No hay mensajes aún.</p>`;
+        }
+
+        modal.show();
+      });
+    });
+
+document.getElementById('formModificar').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const token = localStorage.getItem('token');
+  const decoded = jwt_decode(token); 
+  const id = document.getElementById('ticketId').value;
+  const estado = document.getElementById('estado').value;
+  const descripcion = document.getElementById('descripcion').value;
+  const id_asesor = document.getElementById('asesor').value || null;
+  const respuesta = document.getElementById('respuesta').value;
+  const prioridad = document.getElementById('prioridad').value;  
+  const id_administrador = decoded.id_administrador; // Este también se obtiene del token decodificado.
+
+  try {
+    const res = await fetch(`/api/admin/solicitudes/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ estado, descripcion, id_asesor, respuesta, prioridad, id_administrador })
+    });
+
+    if (res.ok) {
+      modal.hide();
+      alert('Ticket actualizado correctamente');
+      secciones.solicitudes(); // Recargar vista
+    } else {
+      const err = await res.json();
+      alert('Error: ' + (err.error || 'No se pudo actualizar'));
+    }
+  } catch (error) {
+    console.error(error);
+    alert('Error al conectar con el servidor');
+  }
+});
+
+
+  } catch (err) {
+    console.error(err);
+    contenedor.innerHTML = `<p class="text-danger">Error al cargar las solicitudes.</p>`;
+    contenedor.style.display = 'block';
+  }
+}
+,
+  responder: `
+    <h4>Responder y Verificar Solicitudes</h4>
+    <p>Selecciona una solicitud para responder:</p>
+    <select class="form-select mb-3">
+      <option>Consulta #001 - Juan Pérez</option>
+      <option>Consulta #002 - Ana Gómez</option>
+    </select>
+    <textarea class="form-control mb-3" rows="3" placeholder="Escribe la respuesta del administrador..."></textarea>
+    <button class="btn btn-success">Enviar Respuesta</button>
+  `
+};
+
+botones.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const seccion = btn.getAttribute('data-section');
+    const contenido = secciones[seccion];
+    if (typeof contenido === 'function') {
+      contenido();
+    } else {
+      contenedor.innerHTML = contenido;
+      contenedor.style.display = 'block';
+      contenedor.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+});
+</script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+</body>
+</html>

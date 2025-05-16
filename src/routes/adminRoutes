@@ -1,0 +1,15 @@
+// routes/adminRoutes.js
+const express = require('express');
+const router = express.Router();
+
+const { obtenerUsuarios, obtenerSolicitudes, actualizarSolicitud
+} = require('../controllers/adminController');
+
+router.get('/usuarios', obtenerUsuarios);
+
+router.get('/solicitudes', obtenerSolicitudes);
+
+router.put('/solicitudes/:id_ticket', actualizarSolicitud);
+
+module.exports = router;
+
