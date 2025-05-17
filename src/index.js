@@ -2,11 +2,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const authRoutes = require('./routes/authRoutes');
-const ticketRoutes = require('./routes/ticketsRoutes');
-const asesor = require('./routes/asesorRoutes');
 const adminRoutes = require('./routes/adminRoutes');
-
-
+const asesor = require('./routes/asesorRoutes');
+const ticketRoutes = require('./routes/ticketsRoutes');
+const webhook=require('./routes/webhook');
 require('dotenv').config();
 
 const app = express();
@@ -18,9 +17,10 @@ app.use(bodyParser.json());
 
 // Rutas
 app.use("/api", authRoutes);
-app.use("/api/tickets", ticketRoutes);
-app.use("/api/asesor", asesor);
+app.use('/webhook', webhook);
 app.use("/api/admin", adminRoutes)
+app.use("/api/asesor", asesor);
+app.use("/api/tickets", ticketRoutes);
 
 // Rutas para servir vistas
 app.get('/', (req, res) => {
