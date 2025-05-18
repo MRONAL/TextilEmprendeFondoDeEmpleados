@@ -206,77 +206,146 @@ const secciones = {
     }
   },
 
-  estado: async () => {
-    contenedor.innerHTML = `
+estado: async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch('/api/tickets/ticketsAfiliado', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    const tickets = await response.json();
+
+    let html = `
       <div class="estado-tickets bg-white p-4 rounded shadow-sm">
         <h4 class="mb-4 text-primary">Estado de Solicitudes</h4>
-        <ul id="lista-tickets" class="list-group list-group-flush"></ul>
+        <ul id="lista-tickets" class="list-group list-group-flush">
+          ${tickets.length === 0
+            ? '<li class="list-group-item">No has enviado solicitudes aún.</li>'
+            : tickets.map(ticket => `
+                <li class="list-group-item">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <strong>#${ticket.id_ticket}</strong> - ${ticket.categoria}<br>
+                      <span><strong>Estado:</strong> ${ticket.estado}</span><br>
+                      <small>${ticket.descripcion}</small>
+                    </div>
+                    <button class="btn btn-sm btn-outline-primary ver-detalle-btn" data-ticket-id="${ticket.id_ticket}">Ver detalles</button>
+                  </div>
+                </li>
+              `).join('')}
+        </ul>
       </div>
-      <!-- Modal para ver detalles del ticket y chat -->
-<div class="modal fade" id="modalDetalleTicket" tabindex="-1" aria-labelledby="modalDetalleTicketLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalDetalleTicketLabel">Detalle del Ticket</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3"><strong>ID:</strong> <span id="detalle-id"></span></div>
-        <div class="mb-3"><strong>Categoría:</strong> <span id="detalle-categoria"></span></div>
-        <div class="mb-3"><strong>Estado:</strong> <span id="detalle-estado"></span></div>
-        <div class="mb-3"><strong>Descripción:</strong> <span id="detalle-descripcion"></span></div>
-        <div class="mb-3"><strong>Asesor asignado:</strong> <span id="detalle-asesor"></span></div>
 
-        <hr>
-        <h6>Chat</h6>
-        <div id="chat-mensajes" class="border p-3 mb-3 rounded" style="max-height: 300px; overflow-y: auto; background: #f9f9f9;"></div>
-        <div class="input-group">
-          <input type="text" id="mensaje-input" class="form-control" placeholder="Escribe tu mensaje..." />
-          <button class="btn btn-primary" id="enviar-mensaje">Enviar</button>
+      <!-- Modal Detalle + Chat -->
+      <div class="modal fade" id="modalDetalleTicket" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Detalle del Ticket</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+              <div><strong>ID:</strong> <span id="detalle-id"></span></div>
+              <div><strong>Categoría:</strong> <span id="detalle-categoria"></span></div>
+              <div><strong>Estado:</strong> <span id="detalle-estado"></span></div>
+              <div><strong>Descripción:</strong> <span id="detalle-descripcion"></span></div>
+              <div><strong>Asesor asignado:</strong> <span id="detalle-asesor"></span></div>
+
+              <hr>
+              <h6>Chat con asesor y administrador</h6>
+              <div id="chat-mensajes" class="border p-3 mb-3 rounded" style="max-height: 300px; overflow-y: auto; background: #f9f9f9;"></div>
+              <div class="input-group">
+                <input type="text" id="mensaje-input" class="form-control" placeholder="Escribe tu mensaje..." />
+                <button class="btn btn-primary" id="enviar-mensaje">Enviar</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-</div>
-
     `;
 
+    contenedor.innerHTML = html;
     contenedor.style.display = 'block';
     contenedor.scrollIntoView({ behavior: 'smooth' });
 
-    const token = localStorage.getItem('token');
+    const modal = new bootstrap.Modal(document.getElementById('modalDetalleTicket'));
 
-    try {
-      const response = await fetch('http://localhost:3000/api/tickets/ticketsAfiliado', {
-        headers: {
-          'Authorization': `Bearer ${token}`
+    document.querySelectorAll('.ver-detalle-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id_ticket = btn.getAttribute('data-ticket-id');
+
+        try {
+          const res = await fetch(`/api/tickets/${id_ticket}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+
+          const { ticket, mensajes } = await res.json();
+
+          // Mostrar detalles
+          document.getElementById('detalle-id').textContent = ticket.id_ticket;
+          document.getElementById('detalle-categoria').textContent = ticket.categoria;
+          document.getElementById('detalle-estado').textContent = ticket.estado;
+          document.getElementById('detalle-descripcion').textContent = ticket.descripcion;
+
+          // Mostrar mensajes en el minichat
+const chatContainer = document.getElementById('chat-mensajes');
+chatContainer.innerHTML = mensajes.map(msg => {
+  let nombreRemitente = '';
+  let tipoRemitente = '';
+
+  if (msg.id_asesor) {
+    nombreRemitente = msg.nombre_asesor || 'Asesor';
+    tipoRemitente = '(asesor)';
+  } else if (msg.id_administrador) {
+    nombreRemitente = msg.nombre_administrador || 'Administrador';
+    tipoRemitente = '(admin)';
+  } else {
+    nombreRemitente = msg.nombre_afiliado || 'Afiliado';
+    tipoRemitente = '(afiliado)';
+  }
+
+  return `
+    <div class="mensaje">
+      <strong>${nombreRemitente} ${tipoRemitente}:</strong> ${msg.respuesta}
+    </div>
+  `;
+}).join('');
+
+
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+
+          // Enviar mensaje
+          document.getElementById('enviar-mensaje').onclick = async () => {
+            const input = document.getElementById('mensaje-input');
+            const mensaje = input.value.trim();
+            if (!mensaje) return;
+
+            await fetch(`/api/tickets/${ticket.id_ticket}/mensaje`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ id_ticket: ticket.id_ticket, mensaje })
+            });
+
+            input.value = '';
+            btn.click(); // recarga detalles y mensajes
+          };
+
+          modal.show();
+        } catch (error) {
+          console.error('Error al cargar detalles del ticket:', error);
         }
       });
+    });
 
-      const tickets = await response.json();
-      const lista = document.getElementById('lista-tickets');
-      lista.innerHTML = '';
-
-      if (tickets.length === 0) {
-        lista.innerHTML = '<li class="list-group-item">No has enviado solicitudes aún.</li>';
-      } else {
-        tickets.forEach(ticket => {
-          const item = document.createElement('li');
-          item.className = 'list-group-item';
-          item.innerHTML = `
-            <strong>#${ticket.id_ticket}</strong> - ${ticket.categoria} | ${ticket.estado}
-            <br><small>${ticket.descripcion}</small><br>
-            <button class="btn btn-sm btn-outline-primary mt-2" onclick="verDetalleTicket(${ticket.id_ticket})">Ver detalles</button>
-          `;
-          lista.appendChild(item);
-        });
-      }
-
-    } catch (error) {
-      console.error('Error al cargar tickets:', error);
-    }
-  },
-
+  } catch (error) {
+    console.error('Error al cargar tickets:', error);
+    contenedor.innerHTML = `<p class="text-danger">Error al cargar tus solicitudes.</p>`;
+    contenedor.style.display = 'block';
+  }
+},
   soporte: async () => {
     contenedor.innerHTML = `
       <div class="info-personal">
@@ -347,7 +416,7 @@ const secciones = {
   agent-id="9f8abbbf-9af9-4c0d-bcf0-f825d19df166"
   language-code="es"
 ></df-messenger>
-
+<script>
 botones.forEach(btn => {
   btn.addEventListener('click', async () => {
     const seccion = btn.getAttribute('data-section');
@@ -359,80 +428,7 @@ botones.forEach(btn => {
   });
 });
 
-  async function verDetalleTicket(id_ticket) {
-  const token = localStorage.getItem('token');
-
-  try {
-    const response = await fetch(`http://localhost:3000/api/tickets/${id_ticket}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    const ticket = await response.json();
-
-    document.getElementById('detalle-id').textContent = ticket.id_ticket;
-    document.getElementById('detalle-categoria').textContent = ticket.categoria;
-    document.getElementById('detalle-estado').textContent = ticket.estado;
-    document.getElementById('detalle-descripcion').textContent = ticket.descripcion;
-    document.getElementById('detalle-asesor').textContent = ticket.nombre_asesor || "Por asignar";
-
-    // Mostrar modal
-    const modal = new bootstrap.Modal(document.getElementById('modalDetalleTicket'));
-    modal.show();
-
-    // Asociar evento de envío de mensaje
-    document.getElementById('enviar-mensaje').onclick = async () => {
-      const mensaje = document.getElementById('mensaje-input').value.trim();
-      if (!mensaje) return;
-
-        await fetch(`http://localhost:3000/api/tickets/${ticket.id_ticket}/mensaje`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          id_ticket: ticket.id_ticket,
-          mensaje
-        })
-      });
-
-      document.getElementById('mensaje-input').value = '';
-      await cargarMensajesChat(ticket.id_ticket);
-    };
-
-  } catch (error) {
-    console.error('Error al cargar detalles del ticket:', error);
-  }
-}
-async function cargarMensajesChat(id_ticket) {
-  const token = localStorage.getItem('token');
-
-  try {
-    const response = await fetch(`http://localhost:3000/api/tickets/${id_ticket}/mensaje`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    const mensajes = await response.json();
-    const chatBox = document.getElementById('chat-mensajes');
-    chatBox.innerHTML = '';
-
-    mensajes.forEach(msg => {
-      const p = document.createElement('p');
-      p.className = msg.de === 'afiliado' ? 'text-end text-primary' : 'text-start text-secondary';
-      p.innerHTML = `<small><strong>${msg.nombre}:</strong> ${msg.mensaje}</small>`;
-      chatBox.appendChild(p);
-    });
-
-    chatBox.scrollTop = chatBox.scrollHeight;
-  } catch (error) {
-    console.error('Error al cargar mensajes del chat:', error);
-  }
-}
-
+</script>
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 

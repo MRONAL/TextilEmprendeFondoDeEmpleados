@@ -385,45 +385,37 @@ solicitudes: async () => {
         document.getElementById('asesor').value = asesores.find(a => a.nombre_asesor === ticket.nombre_asesor)?.id || '';
         document.getElementById('prioridad').value = ticket.prioridad || '';
         document.getElementById('respuesta').value = '';
+        const token = localStorage.getItem('token');
+        const decoded = jwt_decode(token); 
+        const id_administrador = decoded.id_administrador;
         
 
         // Historial de mensajes
-        const historial = document.getElementById('historialMensajes');
-        if (Array.isArray(ticket.respuestas) && ticket.respuestas.length > 0) {
-          const mensajesOrdenados = ticket.respuestas.sort((a, b) => new Date(a.fecha_respuesta) - new Date(b.fecha_respuesta));
-          historial.innerHTML = mensajesOrdenados.map(r => {
-  let autor = 'Desconocido';
-  let clase = 'desconocido';
 
-  if (r.id_afiliado) {
-    autor = 'Afiliado';
-    clase = 'afiliado';
-  } else if (r.id_asesor) {
-    autor = 'Asesor';
-    clase = 'asesor';
-  } else if (r.id_administrador) {
-    autor = 'Administrador';
-    clase = 'admin';
-  }
+const historial = document.getElementById('historialMensajes');
+historial.innerHTML = ""; // Limpiar contenido previo
 
-  const fecha = new Date(r.fecha_respuesta).toLocaleString();
+if (Array.isArray(ticket.respuestas) && ticket.respuestas.length > 0) {
+  const mensajesOrdenados = ticket.respuestas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+  
+  mensajesOrdenados.forEach(mensaje => {
+    const divMensaje = document.createElement('div');
+    divMensaje.className = `mensaje ${mensaje.tipo}`;
 
-  return `
-    <div class="mensaje ${clase}">
+    divMensaje.innerHTML = `
       <div class="contenido">
-        <div class="texto">${r.respuesta}</div>
-        <div class="meta"><strong>${autor}</strong> · <small>${fecha}</small></div>
+        <div class="texto">${mensaje.mensaje}</div>
+        <div class="meta">${new Date(mensaje.fecha).toLocaleString()}</div>
       </div>
-    </div>
-  `;
-}).join('');
+    `;
+    
+    historial.appendChild(divMensaje);
+  });
+} else {
+  historial.innerHTML = `<p class="text-muted">No hay mensajes aún.</p>`;
+}
+modal.show();
 
-
-        } else {
-          historial.innerHTML = `<p class="text-muted">No hay mensajes aún.</p>`;
-        }
-
-        modal.show();
       });
     });
 
@@ -437,7 +429,7 @@ document.getElementById('formModificar').addEventListener('submit', async (e) =>
   const id_asesor = document.getElementById('asesor').value || null;
   const respuesta = document.getElementById('respuesta').value;
   const prioridad = document.getElementById('prioridad').value;  
-  const id_administrador = decoded.id_administrador; // Este también se obtiene del token decodificado.
+
 
   try {
     const res = await fetch(`/api/admin/solicitudes/${id}`, {

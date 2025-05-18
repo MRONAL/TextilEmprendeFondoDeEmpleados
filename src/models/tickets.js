@@ -11,6 +11,7 @@ const crearTicket = async (usuario_id, categoria, descripcion) => {
   const result = await pool.query(query, values);
   return result.rows[0];
 };
+
 const obtenerTicketsPorAfiliado = async (id_afiliado) => {
   const query = `
     SELECT id_ticket, categoria, descripcion, estado, fecha_creacion
@@ -44,27 +45,51 @@ const guardarMensaje = async (id_ticket, emisor, nombre, mensaje, id_usuario) =>
   return result.rows[0];
 };
 
-// Obtener mensajes por ticket
+// Obtener mensajes por ticket con nombres de remitentes
 const obtenerMensajesPorTicket = async (id_ticket) => {
   const result = await pool.query(
-    `SELECT id_respuesta, id_ticket, fecha_respuesta, respuesta, 
-            id_asesor, id_afiliado, id_administrador
-     FROM respuesta 
-     WHERE id_ticket = $1
-     ORDER BY fecha_respuesta ASC`,
+    `SELECT r.id_respuesta, r.id_ticket, r.fecha_respuesta, r.respuesta, 
+            r.id_asesor, r.id_afiliado, r.id_administrador,
+            a.nombre AS nombre_afiliado,
+            s.nombre AS nombre_asesor,
+            ad.nombre AS nombre_administrador
+     FROM respuesta r
+     LEFT JOIN afiliado a ON r.id_afiliado = a.id_afiliado
+     LEFT JOIN asesor s ON r.id_asesor = s.id_asesor
+     LEFT JOIN administrador ad ON r.id_administrador = ad.id_administrador
+     WHERE r.id_ticket = $1
+     ORDER BY r.fecha_respuesta ASC`,
     [id_ticket]
   );
   return result.rows;
 };
 
-module.exports = {
-  guardarMensaje,
-  obtenerMensajesPorTicket
+
+
+// Obtener información de ticket con nombre del asesor
+const obtenerDetallesTicket = async (id_ticket) => {
+  const result = await pool.query(
+    `SELECT 
+        t.id_ticket,
+        t.categoria,
+        t.estado,
+        t.descripcion,
+        t.fecha_creacion,
+        t.id_asesor,
+        a.nombre AS nombre_asesor
+     FROM ticket t
+     LEFT JOIN asesor a ON t.id_asesor = a.id_asesor
+     WHERE t.id_ticket = $1`,
+    [id_ticket]
+  );
+
+  return result.rows[0];
 };
 
 module.exports = {
   crearTicket,
   obtenerTicketsPorAfiliado,
   guardarMensaje,
-  obtenerMensajesPorTicket
+  obtenerMensajesPorTicket,
+  obtenerDetallesTicket
 };

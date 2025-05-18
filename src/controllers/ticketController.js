@@ -1,5 +1,5 @@
 // controllers/ticketController.js
-const { crearTicket, obtenerTicketsPorAfiliado, guardarMensaje, obtenerMensajesPorTicket  } = require('../models/tickets');
+const { crearTicket, obtenerTicketsPorAfiliado, guardarMensaje, obtenerMensajesPorTicket, obtenerDetallesTicket  } = require('../models/tickets');
 
 const crearTicketAfiliado = async (req, res) => {
 console.log("Usuario en token:", req.user);
@@ -62,12 +62,15 @@ const listarMensajes = async (req, res) => {
 
   try {
     const mensajes = await obtenerMensajesPorTicket(id_ticket);
-    res.json(mensajes);
+    const ticket = await obtenerDetallesTicket(id_ticket);
+
+    res.json({ ticket, mensajes }); 
   } catch (error) {
     console.error('Error al obtener mensajes:', error);
     res.status(500).json({ error: 'No se pudieron obtener los mensajes' });
   }
 };
+
 
 module.exports = { crearTicketAfiliado, listarTicketsAfiliado, enviarMensaje,
 listarMensajes };

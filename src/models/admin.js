@@ -46,7 +46,6 @@ const actualizarTicket = async (idTicket, estado, descripcion, id_asesor, priori
   try {
     await client.query('BEGIN');
 
-    // Actualizar el ticket
     const result = await client.query(
       `UPDATE ticket
        SET estado = $1,
@@ -70,9 +69,9 @@ const actualizarTicket = async (idTicket, estado, descripcion, id_asesor, priori
     // Insertar respuesta del administrador si existe contenido
     if (respuesta && respuesta.trim() !== '') {
       await client.query(
-        `INSERT INTO respuesta (id_ticket, fecha_respuesta, respuesta, id_asesor, id_afiliado, id_administrador)
-         VALUES ($1, NOW(), $2, $3, $4, $5)`,
-        [idTicket, respuesta, id_asesor, id_afiliado, id_administrador]
+        `INSERT INTO respuesta (id_ticket, fecha_respuesta, respuesta, id_administrador)
+         VALUES ($1, NOW(), $2, $3)`,
+        [idTicket, respuesta, id_administrador]
       );
     }
 

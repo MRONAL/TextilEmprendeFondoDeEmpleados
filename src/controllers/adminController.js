@@ -12,7 +12,7 @@ const obtenerUsuarios = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener usuarios' });
   }
 };
-// ✅ Obtener todas las solicitudes (tickets)
+// Obtener todas las solicitudes (tickets)
 const obtenerSolicitudes = async (req, res) => {
   try {
     const tickets = await obtenerTickets();
@@ -23,7 +23,7 @@ const obtenerSolicitudes = async (req, res) => {
   }
 };
 
-// ✅ Actualizar una solicitud (ticket)
+// Actualizar una solicitud (ticket)
 const actualizarSolicitud = async (req, res) => {
   const { id_ticket } = req.params;
   const { estado, descripcion, id_asesor, prioridad, respuesta, id_administrador} = req.body;
