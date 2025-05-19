@@ -2,25 +2,30 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../models/DbConexion'); // ajusta la ruta según tu estructura
 
+async function registrarLog(idAfiliado, idAsesor, userInput, matchedFaq, chatbotResponse) {
+    try {
+        await pool.query(
+            'INSERT INTO chatbot_log (id_afiliado, id_asesor, user_input, matched_faq, chatbot_response) VALUES ($1, $2, $3, $4, $5)',
+            [idAfiliado, idAsesor, userInput, matchedFaq, chatbotResponse]
+        );
+    } catch (logError) {
+        console.error("Error al registrar en chatbot_log:", logError);
+    }
+}
 router.post('/', async (req, res) => {
     const intentName = req.body.queryResult.intent.displayName;
     const userInput = req.body.queryResult.queryText;
     let chatbotResponse = ""; // Variable para almacenar la respuesta del chatbot
-    let idAfiliado = null;
     let matchedFaq = null; // Para registrar si se encontró una respuesta en la FAQ
+    let idAfiliado = null;
 
     if (intentName === 'VolverMenu') {
         chatbotResponse = "¡Bienvenido nuevamente al menú principal! Por favor, selecciona una opción:\n1. Consultar saldo\n2. Consultar pagos\n3. Preguntas frecuentes (FAQ)\n4. Hablar con un asesor";
-
         try {
-            await pool.query(
-                'INSERT INTO chatbot_log (user_input, chatbot_response) VALUES ($1, $2)',
-                [userInput, chatbotResponse]
-            );
-        } catch (logError) {
-            console.error("Error al registrar en chatbot_log:", logError);
+            await registrarLog(idAfiliado, idAsesor, userInput, matchedFaq, chatbotResponse);
+        } catch (error) {
+            console.error("Error al registrar log en VolverMenu:", error);
         }
-
         return res.json({ fulfillmentText: chatbotResponse });
     }
 
@@ -31,6 +36,7 @@ router.post('/', async (req, res) => {
             chatbotResponse = "Por favor, indícame tu número de cédula para consultar tu saldo.";
             return res.json({ fulfillmentText: chatbotResponse });
         }
+
 
         try {
             // Consulta al afiliado
@@ -63,15 +69,8 @@ router.post('/', async (req, res) => {
             chatbotResponse = "Hubo un error al consultar tu saldo.";
             return res.json({ fulfillmentText: chatbotResponse });
         } finally {
-            // Registrar en chatbot_log
-            try {
-                await pool.query(
-                    'INSERT INTO chatbot_log (id_afiliado, user_input, chatbot_response) VALUES ($1, $2, $3)',
-                    [idAfiliado, userInput, chatbotResponse]
-                );
-            } catch (logError) {
-                console.error("Error al registrar en chatbot_log:", logError);
-            }
+
+            await registrarLog(idAfiliado, idAsesor, userInput, matchedFaq, chatbotResponse);
         }
     }
 
@@ -121,51 +120,80 @@ router.post('/', async (req, res) => {
             chatbotResponse = "Hubo un error al consultar tus pagos.";
             return res.json({ fulfillmentText: chatbotResponse });
         } finally {
-            // Registrar en chatbot_log
-            try {
-                await pool.query(
-                    'INSERT INTO chatbot_log (id_afiliado, user_input, chatbot_response) VALUES ($1, $2, $3)',
-                    [idAfiliado, userInput, chatbotResponse]
-                );
-            } catch (logError) {
-                console.error("Error al registrar en chatbot_log:", logError);
-            }
+            await registrarLog(idAfiliado, idAsesor, userInput, matchedFaq, chatbotResponse);
+
         }
     }
 
 
-   if (intentName === 'FAQ') {
+  if (intentName === 'ConsultaFAQ') {
+    const parameters = req.body.queryResult.parameters;
     const tipoCredito = parameters.TipoCredito;
     const tipoServicio = parameters.TipoServicio;
     const tipoSeguro = parameters.TipoSeguro;
     const tipoAsesoria = parameters.TipoAsesoria;
+    const userInput = req.body.queryResult.queryText;
 
-    // Determinar la categoría con base en el parámetro recibido
-    const categoria =
-        tipoCredito || tipoServicio || tipoSeguro || tipoAsesoria;
+    console.log("Parámetros FAQ recibidos:", {
+        tipoCredito,
+        tipoServicio,
+        tipoSeguro,
+        tipoAsesoria
+    });
 
-    let chatbotResponse = '';
+    const categoria = tipoCredito || tipoServicio || tipoSeguro || tipoAsesoria;
+
+    function calcularSimilitud(a, b) {
+        a = a.toLowerCase().split(/\s+/);
+        b = b.toLowerCase().split(/\s+/);
+        const interseccion = a.filter(palabra => b.includes(palabra));
+        return interseccion.length / Math.max(a.length, b.length);
+    }
+
     try {
-        const resultado = await pool.query(
-            `SELECT respuesta 
-             FROM faq 
-             WHERE categoria ILIKE $1 
-             ORDER BY fecha_creacion DESC 
-             LIMIT 1`,
-            [categoria]
-        );
-
-        if (resultado.rows.length > 0) {
-            chatbotResponse = resultado.rows[0].respuesta;
+        if (!categoria) {
+            chatbotResponse = "Lo siento, no entendí bien tu pregunta. ¿Puedes especificar mejor qué necesitas saber?";
         } else {
-            chatbotResponse = "No encontré una respuesta para esa categoría. ¿Puedes ser más específico?";
+            const resultado = await pool.query(
+                `SELECT pregunta, respuesta FROM faq WHERE categoria ILIKE $1`,
+                [categoria]
+            );
+
+            if (resultado.rows.length > 0) {
+                let maxSimilitud = 0;
+                let mejorRespuesta = "No encontré una respuesta específica para tu pregunta.";
+                let matchedPregunta = "";
+
+                for (const row of resultado.rows) {
+                    const similitud = calcularSimilitud(userInput, row.pregunta);
+                    if (similitud > maxSimilitud) {
+                        maxSimilitud = similitud;
+                        mejorRespuesta = row.respuesta;
+                        matchedPregunta = row.pregunta;
+                    }
+                }
+
+                // Umbral opcional para evitar respuestas irrelevantes
+                if (maxSimilitud >= 0.3) {
+                    chatbotResponse = mejorRespuesta;
+                    matchedFaq = categoria;
+                } else {
+                    chatbotResponse = `Aquí tienes información general sobre ${categoria.toLowerCase()}: ${resultado.rows[0].respuesta}`;
+                    matchedFaq = categoria;
+                }
+
+            } else {
+                chatbotResponse = `No encontré información relacionada con ${categoria.toLowerCase()}.`;
+            }
         }
 
         return res.json({ fulfillmentText: chatbotResponse });
 
     } catch (error) {
-        console.error("Error en FAQ:", error);
+        console.error("Error en ConsultaFAQ:", error);
         return res.json({ fulfillmentText: "Ocurrió un error al buscar tu respuesta frecuente." });
+    } finally {
+        await registrarLog(idAfiliado, idAsesor, userInput, matchedFaq, chatbotResponse);
     }
 }
 
