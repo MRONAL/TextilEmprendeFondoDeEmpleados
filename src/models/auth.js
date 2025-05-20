@@ -62,7 +62,7 @@ const loginUser = async (email, password) => {
     }
 
     const token = jwt.sign(
-        { id_asesor: user.id_asesor, id_afiliado: user.id_afiliado, correo: user.correo, nombre: user.nombre, cedula: user.cedula, rol:table },
+        { id_asesor: user.id_asesor, id_afiliado: user.id_afiliado, id_administrador: user.id_administrador, correo: user.correo, nombre: user.nombre, cedula: user.cedula, rol:table },
         process.env.JWT_SECRET,
         { expiresIn: '1h' }
     );

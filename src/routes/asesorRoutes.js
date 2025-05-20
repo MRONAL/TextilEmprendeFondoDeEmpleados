@@ -5,7 +5,7 @@ const { listarTicketsAfiliado, actualizarTicket } = require('../controllers/ases
 const verificarToken = require('../models/authMiddleware');
 
 router.get('/infosolicitudes', verificarToken, listarTicketsAfiliado);
-router.put('/modificar/tickets/:id', verificarToken, actualizarTicket);
+router.put('/modificar/tickets/:id_ticket', verificarToken, actualizarTicket);
 
 
 module.exports = router;

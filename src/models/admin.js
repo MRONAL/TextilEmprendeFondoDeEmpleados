@@ -41,7 +41,7 @@ ORDER BY t.fecha_creacion DESC;
 };
 
 // Actualizar un ticket (estado, descripción, prioridad, asesor) y guardar respuesta
-const actualizarTicket = async (idTicket, estado, descripcion, id_asesor, prioridad, respuesta, id_administrador) => {
+const actualizarTicket = async (idTicket, estado, descripcion, id_asesor, prioridad, id_administrador) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -65,15 +65,6 @@ const actualizarTicket = async (idTicket, estado, descripcion, id_asesor, priori
     }
 
     const id_afiliado = result.rows[0].id_afiliado;
-
-    // Insertar respuesta del administrador si existe contenido
-    if (respuesta && respuesta.trim() !== '') {
-      await client.query(
-        `INSERT INTO respuesta (id_ticket, fecha_respuesta, respuesta, id_administrador)
-         VALUES ($1, NOW(), $2, $3)`,
-        [idTicket, respuesta, id_administrador]
-      );
-    }
 
     await client.query('COMMIT');
     return true;

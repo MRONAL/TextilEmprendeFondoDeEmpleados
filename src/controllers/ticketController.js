@@ -41,8 +41,8 @@ const enviarMensaje = async (req, res) => {
   } else if (usuario.rol === 'asesor') {
     emisor = 'asesor';
     id_usuario = usuario.id_asesor;
-  } else if (usuario.rol === 'admin') {
-    emisor = 'admin';
+  } else if (usuario.rol === 'administrador') {
+    emisor = 'administrador';
     id_usuario = usuario.id_administrador;
   } else {
     return res.status(400).json({ error: 'Rol no reconocido para enviar mensajes' });

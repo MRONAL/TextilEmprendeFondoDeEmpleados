@@ -16,10 +16,10 @@ const listarTicketsAfiliado = async (req, res) => {
 const actualizarTicket = async (req, res) => {
   const id_asesor = req.user.id_asesor;
   const { id_ticket } = req.params;
-  const { estado, descripcion } = req.body;
+  const { estado, categoria } = req.body;
 
   try {
-    const actualizado = await actualizarTicketPorAsesor(id_ticket, id_asesor, estado, descripcion);
+    const actualizado = await actualizarTicketPorAsesor(id_ticket, id_asesor, estado, categoria);
     if (!actualizado) {
       return res.status(404).json({ error: 'Ticket no encontrado o no autorizado' });
     }

@@ -26,10 +26,10 @@ const obtenerSolicitudes = async (req, res) => {
 // Actualizar una solicitud (ticket)
 const actualizarSolicitud = async (req, res) => {
   const { id_ticket } = req.params;
-  const { estado, descripcion, id_asesor, prioridad, respuesta, id_administrador} = req.body;
+  const { estado, descripcion, id_asesor, prioridad, id_administrador} = req.body;
 
   try {
-    const actualizado = await actualizarTicket(id_ticket, estado, descripcion, id_asesor, prioridad, respuesta, id_administrador);
+    const actualizado = await actualizarTicket(id_ticket, estado, descripcion, id_asesor, prioridad, id_administrador);
     if (!actualizado) {
       return res.status(404).json({ error: 'Ticket no encontrado' });
     }

@@ -34,7 +34,7 @@ const guardarMensaje = async (id_ticket, emisor, nombre, mensaje, id_usuario) =>
 
   if (emisor === 'afiliado') campos.id_afiliado = id_usuario;
   if (emisor === 'asesor') campos.id_asesor = id_usuario;
-  if (emisor === 'admin') campos.id_administrador = id_usuario;
+  if (emisor === 'administrador') campos.id_administrador = id_usuario;
 
   const result = await pool.query(
     `INSERT INTO respuesta 

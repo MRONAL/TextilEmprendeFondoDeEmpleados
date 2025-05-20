@@ -31,16 +31,16 @@ const verificarPropiedadTicket = async (id_ticket, id_asesor) => {
   return result.rowCount > 0;
 };
 
-const actualizarTicketPorAsesor = async (id_ticket, id_asesor, estado, descripcion) => {
+const actualizarTicketPorAsesor = async (id_ticket, id_asesor, estado, categoria) => {
   const esPropietario = await verificarPropiedadTicket(id_ticket, id_asesor);
   if (!esPropietario) return null;
 
   const query = `
     UPDATE ticket
-    SET estado = $1, descripcion = $2, updated_at = NOW()
+    SET estado = $1, categoria = $2, updated_at = NOW()
     WHERE id_ticket = $3
   `;
-  const result = await pool.query(query, [estado, descripcion, id_ticket]);
+  const result = await pool.query(query, [estado, categoria, id_ticket]);
   return result;
 };
 

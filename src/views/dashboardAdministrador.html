@@ -140,6 +140,36 @@
       margin-top: 5px;
       opacity: 0.8;
     }
+    .chat-box {
+  background-color: #f0f2f5;
+  max-height: 250px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bubble {
+  max-width: 75%;
+  padding: 10px 15px;
+  border-radius: 20px;
+  font-size: 0.95rem;
+  position: relative;
+  word-wrap: break-word;
+}
+
+.bubble.user {
+  background-color: #d1e7dd;
+  align-self: flex-end;
+  border-bottom-right-radius: 0;
+}
+
+.bubble.admin {
+  background-color: #e2e3e5;
+  align-self: flex-start;
+  border-bottom-left-radius: 0;
+}
+
   </style>
 </head>
 
@@ -167,6 +197,13 @@
     <h2 class="text-primary mb-5">Panel del Administrador</h2>
 
     <div class="services">
+    <button class="service-btn text-decoration-none" data-section="info">
+      <div class="service">
+        <img src="https://img.icons8.com/ios-filled/50/1e2c5e/user-folder.png" alt="Información Personal" />
+        <p>Información<br>Personal</p>
+      </div>
+    </button>
+      
       <button class="service-btn text-decoration-none" data-section="clientes">
         <div class="service">
           <img src="https://img.icons8.com/ios-filled/50/1e2c5e/conference.png" alt="Clientes" />
@@ -178,13 +215,6 @@
         <div class="service">
           <img src="https://img.icons8.com/ios-filled/50/1e2c5e/document.png" alt="Solicitudes" />
           <p>Solicitudes<br>de Clientes</p>
-        </div>
-      </button>
-
-      <button class="service-btn text-decoration-none" data-section="responder">
-        <div class="service">
-          <img src="https://img.icons8.com/ios-filled/50/1e2c5e/ok.png" alt="Responder" />
-          <p>Responder y<br>Verificar</p>
         </div>
       </button>
 
@@ -200,21 +230,50 @@
   </main>
   <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
   <script>
-    const token = localStorage.getItem('token');
+      let decoded = {};
+  const token = localStorage.getItem('token');
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const usernameEl = document.getElementById('username');
     if (token) {
-      const decoded = jwt_decode(token);
-      document.getElementById('username').textContent = decoded.nombre || decoded.correo || decoded.id_administrador || "Administrador";
-
+      try {
+        decoded = jwt_decode(token);
+        usernameEl.textContent = decoded.nombre ;
+      } catch (error) {
+        console.error("Token inválido:", error);
+        usernameEl.textContent = "Invitado";
+      }
     } else {
-      document.getElementById('username').textContent = "Invitado";
+      usernameEl.textContent = "Invitado";
     }
-  </script>
-
-  <script>
+  });
     const botones = document.querySelectorAll('.service-btn');
     const contenedor = document.getElementById('contenido-dinamico');
 
+
     const secciones = {
+      info: async () => {
+  contenedor.innerHTML = `
+    <div class="info-personal">
+      <h4 class="mb-4 text-primary">Información Personal</h4>
+      <div class="info-item"><strong>Id:</strong> <span id="username-id"></span></div>
+      <div class="info-item"><strong>Nombre:</strong> <span id="username-info"></span></div>
+      <div class="info-item"><strong>Cédula:</strong> <span id="cedula"></span></div>
+      <div class="info-item"><strong>Correo:</strong> <span id="correo"></span></div>
+      <div class="info-item"><strong>Rol:</strong> <span id="rol"></span></div>
+    </div>
+  `;
+  contenedor.style.display = 'block';
+  contenedor.scrollIntoView({ behavior: 'smooth' });
+
+  if (decoded) {
+    document.getElementById('username-id').textContent = decoded.id_administrador;
+    document.getElementById('username-info').textContent = decoded.nombre;
+    document.getElementById('cedula').textContent = decoded.cedula;
+    document.getElementById('correo').textContent = decoded.correo;
+    document.getElementById('rol').textContent = decoded.rol;
+  }
+},
       clientes: async () => {
         try {
           const res = await fetch('/api/admin/usuarios');
@@ -323,60 +382,78 @@
       </div>
     </div>
 
-    <!-- Modal -->
-    <div class="modal fade" id="modalModificar" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header bg-primary text-white">
-            <h5 class="modal-title">Modificar Solicitud</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+<!-- Modal -->
+<div class="modal fade" id="modalModificar" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header bg-primary text-white rounded-top-4">
+        <h5 class="modal-title">Modificar Solicitud</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body bg-light">
+        <form id="formModificar">
+          <input type="hidden" id="ticketId" />
+          
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Descripción</label>
+            <textarea class="form-control rounded-3" id="descripcion" rows="3"></textarea>
           </div>
-          <div class="modal-body">
-            <form id="formModificar">
-              <input type="hidden" id="ticketId" />
-              <div class="mb-3">
-                <label class="form-label">Descripción</label>
-                <textarea class="form-control" id="descripcion" rows="3"></textarea>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Estado</label>
-                <select class="form-select" id="estado">
-                  <option value="Pendiente">Pendiente</option>
-                  <option value="En proceso">En proceso</option>
-                  <option value="Resuelto">Resuelto</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Asignar Asesor</label>
-                <select class="form-select" id="asesor">
-                  <option value="">Sin asignar</option>
-                  ${asesores.map(a => `<option value="${a.id}">${a.nombre}</option>`).join('')}
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Prioridad</label>
-                <select class="form-select" id="prioridad">
-                  <option value="Baja">Baja</option>
-                  <option value="Media">Media</option>
-                  <option value="Alta">Alta</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Historial de mensajes</label>
-                <div id="historialMensajes" class="border p-2 rounded" style="max-height: 250px; overflow-y: auto; background-color: #f9f9f9;">
-                  <p class="text-muted">No hay mensajes aún.</p>
-                </div>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Respuesta del administrador</label>
-                <textarea class="form-control" id="respuesta" rows="3"></textarea>
-              </div>
-              <button type="submit" class="btn btn-success">Guardar cambios</button>
-            </form>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold">Estado</label>
+              <select class="form-select rounded-3" id="estado">
+                <option value="Pendiente">Pendiente</option>
+                <option value="En proceso">En proceso</option>
+                <option value="Resuelto">Resuelto</option>
+              </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold">Prioridad</label>
+              <select class="form-select rounded-3" id="prioridad">
+                <option value="Baja">Baja</option>
+                <option value="Media">Media</option>
+                <option value="Alta">Alta</option>
+              </select>
+            </div>
           </div>
-        </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Asignar Asesor</label>
+            <select class="form-select rounded-3" id="asesor">
+              <option value="">Sin asignar</option>
+              ${asesores.map(a => `<option value="${a.id}">${a.nombre}</option>`).join('')}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Historial de mensajes</label>
+            <div id="historialMensajes" class="chat-box p-3 rounded-3">
+              <div class="text-muted text-center">No hay mensajes aún.</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Respuesta del administrador</label>
+            <textarea class="form-control rounded-3" id="respuesta" rows="2" placeholder="Escribe un mensaje..."></textarea>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-outline-primary" id="btnEnviarMensaje">
+              <i class="bi bi-send"></i> Enviar Mensaje
+            </button>
+
+            <button type="submit" class="btn btn-success">
+              <i class="bi bi-save"></i> Guardar Cambios
+            </button>
+          </div>
+        </form>
       </div>
     </div>
+  </div>
+</div>
+
     `;
 
           contenedor.innerHTML = html;
@@ -386,47 +463,99 @@
           // Activar modales
           const modal = new bootstrap.Modal(document.getElementById('modalModificar'));
           document.querySelectorAll('.modificar-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-              const ticket = JSON.parse(btn.getAttribute('data-ticket'));
-              document.getElementById('ticketId').value = ticket.id_ticket;
-              document.getElementById('descripcion').value = ticket.descripcion || '';
-              document.getElementById('estado').value = ticket.estado || '';
-              document.getElementById('asesor').value = asesores.find(a => a.nombre_asesor === ticket.nombre_asesor)?.id || '';
-              document.getElementById('prioridad').value = ticket.prioridad || '';
-              document.getElementById('respuesta').value = '';
-              const token = localStorage.getItem('token');
-              const decoded = jwt_decode(token);
-              const id_administrador = decoded.id_administrador;
+btn.addEventListener('click', async () => {
+  const ticket = JSON.parse(btn.getAttribute('data-ticket'));
+  document.getElementById('ticketId').value = ticket.id_ticket;
+  document.getElementById('descripcion').value = ticket.descripcion || '';
+  document.getElementById('estado').value = ticket.estado || '';
+  document.getElementById('asesor').value = asesores.find(a => a.nombre_asesor === ticket.nombre_asesor)?.id || '';
+  document.getElementById('prioridad').value = ticket.prioridad || '';
+  document.getElementById('respuesta').value = '';
 
+  const token = localStorage.getItem('token');
+  const decoded = jwt_decode(token);
+  const id_administrador = decoded.id_administrador;
 
-              // Historial de mensajes
-
-              const historial = document.getElementById('historialMensajes');
-              historial.innerHTML = ""; // Limpiar contenido previo
-
-              if (Array.isArray(ticket.respuestas) && ticket.respuestas.length > 0) {
-                const mensajesOrdenados = ticket.respuestas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-
-                mensajesOrdenados.forEach(mensaje => {
-                  const divMensaje = document.createElement('div');
-                  divMensaje.className = `mensaje ${mensaje.tipo}`;
-
-                  divMensaje.innerHTML = `
-      <div class="contenido">
-        <div class="texto">${mensaje.mensaje}</div>
-        <div class="meta">${new Date(mensaje.fecha).toLocaleString()}</div>
-      </div>
-    `;
-
-                  historial.appendChild(divMensaje);
-                });
-              } else {
-                historial.innerHTML = `<p class="text-muted">No hay mensajes aún.</p>`;
-              }
-              modal.show();
-
-            });
+          // Mostrar mensajes en el minichat
+                  const id_ticket = ticket.id_ticket;
+        try {
+          const res = await fetch(`/api/tickets/${id_ticket}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
           });
+          const { ticket, mensajes } = await res.json();
+const chatContainer = document.getElementById('historialMensajes');
+chatContainer.innerHTML = mensajes.map(msg => {
+  let nombreRemitente = '';
+  let tipoRemitente = '';
+
+  if (msg.id_asesor) {
+    nombreRemitente = msg.nombre_asesor || 'Asesor';
+    tipoRemitente = '(asesor)';
+  } else if (msg.id_administrador) {
+    nombreRemitente = msg.nombre_administrador || 'Administrador';
+    tipoRemitente = '(admin)';
+  } else {
+    nombreRemitente = msg.nombre_afiliado || 'Afiliado';
+    tipoRemitente = '(afiliado)';
+  }
+
+  return `
+    <div class="mensaje">
+      <strong>${nombreRemitente} ${tipoRemitente}:</strong> ${msg.respuesta}
+    </div>
+  `;
+}).join('');
+} catch (error) {
+          console.error('Error al cargar detalles del ticket:', error);
+        }
+  modal.show();
+});
+
+          });
+document.getElementById('btnEnviarMensaje').addEventListener('click', async () => {
+  const token = localStorage.getItem('token');
+  const decoded = jwt_decode(token);
+  const id_ticket = document.getElementById('ticketId').value;
+  const mensaje = document.getElementById('respuesta').value;
+
+  if (!mensaje) return alert('El mensaje no puede estar vacío.');
+
+  try {
+    const res = await fetch(`/api/tickets/${id_ticket}/mensaje`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        id_ticket,
+        mensaje,
+        id_administrador: decoded.id_administrador
+      })
+    });
+
+    if (res.ok) {
+      document.getElementById('respuesta').value = '';
+      // Refrescar historial de mensajes
+      const chatRes = await fetch(`/api/tickets/${id_ticket}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const { mensajes } = await chatRes.json();
+      const chatContainer = document.getElementById('historialMensajes');
+      chatContainer.innerHTML = mensajes.map(msg => {
+        let nombre = msg.nombre_asesor || msg.nombre_administrador || msg.nombre_afiliado;
+        let rol = msg.id_asesor ? '(asesor)' : msg.id_administrador ? '(admin)' : '(afiliado)';
+        return `<div><strong>${nombre} ${rol}:</strong> ${msg.respuesta}</div>`;
+      }).join('');
+    } else {
+      const err = await res.json();
+      alert('Error al enviar mensaje: ' + (err.error || 'desconocido'));
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Error al conectar con el servidor');
+  }
+});
 
           document.getElementById('formModificar').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -436,9 +565,8 @@
             const estado = document.getElementById('estado').value;
             const descripcion = document.getElementById('descripcion').value;
             const id_asesor = document.getElementById('asesor').value || null;
-            const respuesta = document.getElementById('respuesta').value;
             const prioridad = document.getElementById('prioridad').value;
-
+            const id_administrador = decoded.id_administrador;
 
             try {
               const res = await fetch(`/api/admin/solicitudes/${id}`, {
@@ -469,17 +597,6 @@
         }
       }
       ,
-      responder: `
-    <h4>Responder y Verificar Solicitudes</h4>
-    <p>Selecciona una solicitud para responder:</p>
-    <select class="form-select mb-3">
-      <option>Consulta #001 - Juan Pérez</option>
-      <option>Consulta #002 - Ana Gómez</option>
-    </select>
-    <textarea class="form-control mb-3" rows="3" placeholder="Escribe la respuesta del administrador..."></textarea>
-    <button class="btn btn-success">Enviar Respuesta</button>
-  `,
-
    estadisticas: async () => {
   try {
     const res = await fetch('/api/tickets/estadisticas', {

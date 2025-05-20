@@ -154,17 +154,28 @@ const botones = document.querySelectorAll('.service-btn');
 const contenedor = document.getElementById('contenido-dinamico');
 
 const secciones = {
-  info: `
-      <div class="info-personal">
-        <h4 class="mb-4 text-primary">Información Personal</h4>
-        <div class="info-item"><strong>Id:</strong> <span id="username-id"></span></div>
-        <div class="info-item"><strong>Nombre:</strong> <span id="username-info"></span></div>
-        <div class="info-item"><strong>Cédula:</strong> <span id="cedula"></span></div>
-        <div class="info-item"><strong>Correo:</strong> <span id="correo"></span></div>
-        <div class="info-item"><strong>Rol:</strong> <span id="rol"></span></div>
-      </div>
-    `
-    ,
+      info: async () => {
+  contenedor.innerHTML = `
+    <div class="info-personal">
+      <h4 class="mb-4 text-primary">Información Personal</h4>
+      <div class="info-item"><strong>Id:</strong> <span id="username-id"></span></div>
+      <div class="info-item"><strong>Nombre:</strong> <span id="username-info"></span></div>
+      <div class="info-item"><strong>Cédula:</strong> <span id="cedula"></span></div>
+      <div class="info-item"><strong>Correo:</strong> <span id="correo"></span></div>
+      <div class="info-item"><strong>Rol:</strong> <span id="rol"></span></div>
+    </div>
+  `;
+  contenedor.style.display = 'block';
+  contenedor.scrollIntoView({ behavior: 'smooth' });
+
+  if (decoded) {
+    document.getElementById('username-id').textContent = decoded.id_asesor;
+    document.getElementById('username-info').textContent = decoded.nombre;
+    document.getElementById('cedula').textContent = decoded.cedula;
+    document.getElementById('correo').textContent = decoded.correo;
+    document.getElementById('rol').textContent = decoded.rol;
+  }
+},
   solicitudes: async () => {
   try {
     const token = localStorage.getItem('token');
@@ -213,35 +224,71 @@ let html = `
     </table>
   </div>
 
-  <!-- Modal Detalle + Chat -->
-  <div class="modal fade" id="modalDetalleTicket" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg">
-      <div class="modal-content border-0 shadow">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title">📝 Detalle del Ticket</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3"><strong>ID:</strong> <span id="detalle-id"></span></div>
-          <div class="mb-3"><strong>Categoría:</strong> <span id="detalle-categoria"></span></div>
-          <div class="mb-3"><strong>Estado:</strong> <span id="detalle-estado"></span></div>
-          <div class="mb-3"><strong>Descripción:</strong> <span id="detalle-descripcion"></span></div>
+<!-- Modal Detalle + Chat -->
+<div class="modal fade" id="modalDetalleTicket" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg">
+    <div class="modal-content border-0 shadow">
+      
+      <!-- Encabezado -->
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">📝 Detalle del Ticket</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      
+      <!-- Cuerpo -->
+      <div class="modal-body">
+        <div class="mb-3"><strong>ID:</strong> <span id="detalle-id"></span></div>
 
-          <hr>
-          <h6 class="text-primary">💬 Chat con asesor y administrador</h6>
-          <div id="chat-mensajes" class="border p-3 mb-3 rounded bg-light" style="max-height: 300px; overflow-y: auto;">
-            <p class="text-muted">Sin mensajes aún...</p>
-          </div>
-          <div class="input-group">
-            <input type="text" id="mensaje-input" class="form-control" placeholder="Escribe tu mensaje..." />
-            <button class="btn btn-primary" id="enviar-mensaje">
-              <i class="bi bi-send"></i> Enviar
-            </button>
-          </div>
+        <div class="mb-3">
+          <strong>Categoría:</strong>
+          <select id="detalle-categoria" class="form-select">
+            <option value="Pagos">Pagos</option>
+            <option value="Estados de cuenta">Estados de cuenta</option>
+            <option value="Solicitudes de crédito">Solicitudes de crédito</option>
+          </select>
         </div>
+
+        <div class="mb-3">
+          <strong>Estado:</strong>
+          <select id="detalle-estado" class="form-select">
+            <option value="Pendiente">Pendiente</option>
+            <option value="En Proceso">En Proceso</option>
+            <option value="Resuelto">Resuelto</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <strong>Descripción:</strong>
+          <span id="detalle-descripcion"></span>
+        </div>
+
+        <hr>
+
+        <!-- Sección Chat -->
+        <h6 class="text-primary">💬 Chat con asesor y administrador</h6>
+        <div id="chat-mensajes" class="border p-3 mb-3 rounded bg-light" style="max-height: 300px; overflow-y: auto;">
+          <p class="text-muted">Sin mensajes aún...</p>
+        </div>
+
+        <div class="input-group mb-4">
+          <input type="text" id="mensaje-input" class="form-control" placeholder="Escribe tu mensaje..." />
+          <button class="btn btn-primary" id="enviar-mensaje">
+            <i class="bi bi-send"></i> Enviar
+          </button>
+        </div>
+
+        <!-- Botón guardar cambios -->
+        <div class="text-end">
+          <button class="btn btn-success" id="guardar-cambios">
+            <i class="bi bi-save"></i> Guardar Cambios
+          </button>
+        </div>
+        
       </div>
     </div>
   </div>
+</div>
+
 `;
 
 
@@ -265,8 +312,8 @@ let html = `
 
           // Mostrar detalles
           document.getElementById('detalle-id').textContent = ticket.id_ticket;
-          document.getElementById('detalle-categoria').textContent = ticket.categoria;
-          document.getElementById('detalle-estado').textContent = ticket.estado;
+          document.getElementById('detalle-categoria').value = ticket.categoria;
+          document.getElementById('detalle-estado').value = ticket.estado;
           document.getElementById('detalle-descripcion').textContent = ticket.descripcion;
 
           // Mostrar mensajes en el minichat
@@ -295,6 +342,32 @@ chatContainer.innerHTML = mensajes.map(msg => {
 
 
           chatContainer.scrollTop = chatContainer.scrollHeight;
+
+  document.getElementById('guardar-cambios').onclick = async () => {
+  const nuevaCategoria = document.getElementById('detalle-categoria').value;
+  const nuevoEstado = document.getElementById('detalle-estado').value;
+
+  try {
+    await fetch(`/api/asesor/modificar/tickets/${ticket.id_ticket}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        categoria: nuevaCategoria,
+        estado: nuevoEstado
+      })
+    });
+
+    alert('Cambios guardados exitosamente');
+    btn.click(); // recargar detalles del ticket
+  } catch (error) {
+    console.error('Error al guardar cambios:', error);
+    alert('Error al guardar los cambios');
+  }
+};
+
 
           // Enviar mensaje
           document.getElementById('enviar-mensaje').onclick = async () => {
@@ -334,15 +407,6 @@ botones.forEach(btn => {
       contenedor.innerHTML = secciones[seccion];
       contenedor.style.display = 'block';
       contenedor.scrollIntoView({ behavior: 'smooth' });
-
-      if (seccion === 'info' && decoded) {
-        document.getElementById('username-id').textContent = decoded.id_asesor;
-        document.getElementById('username-info').textContent = decoded.nombre;
-        document.getElementById('cedula').textContent = decoded.cedula;
-        document.getElementById('correo').textContent = decoded.correo;
-        document.getElementById('rol').textContent = decoded.rol;
-      }
-
       if (secciones[seccion]) {
       secciones[seccion]();
     }
