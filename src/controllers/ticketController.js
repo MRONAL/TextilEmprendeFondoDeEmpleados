@@ -1,5 +1,5 @@
 // controllers/ticketController.js
-const { crearTicket, obtenerTicketsPorAfiliado, guardarMensaje, obtenerMensajesPorTicket, obtenerDetallesTicket  } = require('../models/tickets');
+const { crearTicket, obtenerTicketsPorAfiliado, guardarMensaje, obtenerMensajesPorTicket, obtenerDetallesTicket,obtenerEstadisticasPorEstado  } = require('../models/tickets');
 
 const crearTicketAfiliado = async (req, res) => {
 console.log("Usuario en token:", req.user);
@@ -72,6 +72,25 @@ const listarMensajes = async (req, res) => {
 };
 
 
+const obtenerGraficoEstadoTickets = async (req, res) => {
+  const usuario = req.user;
+
+  // Opcional: Solo permitir si es admin
+  if (usuario.rol !== 'admin') {
+    return res.status(403).json({ error: 'Acceso no autorizado' });
+  }
+
+  try {
+    const datos = await obtenerEstadisticasPorEstado();
+    res.json(datos); // Array con { estado, total }
+  } catch (error) {
+    console.error('Error al obtener datos del gráfico:', error);
+    res.status(500).json({ error: 'No se pudieron obtener las estadísticas' });
+  }
+};
+
+
+
 module.exports = { crearTicketAfiliado, listarTicketsAfiliado, enviarMensaje,
-listarMensajes };
+listarMensajes,obtenerGraficoEstadoTickets };
 

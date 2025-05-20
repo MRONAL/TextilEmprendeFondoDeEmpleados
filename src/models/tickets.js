@@ -86,10 +86,27 @@ const obtenerDetallesTicket = async (id_ticket) => {
   return result.rows[0];
 };
 
+// Obtener estadísticas de tickets por estado (para gráfico)
+const obtenerEstadisticasPorEstado = async () => {
+  const result = await pool.query(`
+    SELECT estado, COUNT(*) AS total
+    FROM ticket
+    GROUP BY estado
+  `);
+  return result.rows;
+};
+
+
 module.exports = {
   crearTicket,
   obtenerTicketsPorAfiliado,
   guardarMensaje,
   obtenerMensajesPorTicket,
-  obtenerDetallesTicket
+  obtenerDetallesTicket,
+  obtenerEstadisticasPorEstado
 };
+
+
+
+
+

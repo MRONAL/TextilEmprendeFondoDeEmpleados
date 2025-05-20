@@ -1,217 +1,226 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel de Administrador - Textilemprende</title>
 
   <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-  body {
-    font-family: 'Segoe UI', sans-serif;
-    margin: 0;
-    background: #ffffff;
-  }
-
-  .services {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 30px;
-    max-width: 1000px;
-    margin: 0 auto 50px auto;
-  }
-
-  .service {
-    background: #f5f5f5;
-    padding: 25px;
-    border-radius: 12px;
-    transition: transform 0.2s ease;
-    text-align: center;
-  }
-
-  .service:hover {
-    transform: translateY(-5px);
-  }
-
-  .service img {
-    width: 50px;
-    height: 50px;
-    margin-bottom: 15px;
-  }
-
-  .service p {
-    color: #1e2c5e;
-    font-weight: 600;
-    font-size: 1.1rem;
-    margin: 0;
-  }
-
-  .help {
-    background-color: #1e2c5e;
-    color: white;
-    padding: 20px;
-    border-radius: 10px;
-    display: inline-block;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  .help span {
-    margin-left: 10px;
-  }
-
-  @media (max-width: 600px) {
-    .services {
-      grid-template-columns: 1fr;
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #ffffff;
     }
-  }
 
-  .logo-textile {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+    .services {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      max-width: 1000px;
+      margin: 0 auto 50px auto;
+    }
 
-  .logo-textile div {
-    line-height: 1.1;
-  }
+    .service {
+      background: #f5f5f5;
+      padding: 25px;
+      border-radius: 12px;
+      transition: transform 0.2s ease;
+      text-align: center;
+    }
 
-  .logo-textile small {
-    font-size: 0.8rem;
-    display: block;
-    color: #555;
-  }
+    .service:hover {
+      transform: translateY(-5px);
+    }
 
-  #historialMensajes {
-    max-height: 300px;
-    overflow-y: auto;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-radius: 10px;
-  }
+    .service img {
+      width: 50px;
+      height: 50px;
+      margin-bottom: 15px;
+    }
 
-  .mensaje {
-    display: flex;
-    margin-bottom: 10px;
-    max-width: 80%;
-  }
+    .service p {
+      color: #1e2c5e;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin: 0;
+    }
 
-  .mensaje.afiliado {
-    justify-content: flex-start;
-  }
+    .help {
+      background-color: #1e2c5e;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      display: inline-block;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-  .mensaje.asesor {
-    justify-content: flex-end;
-    margin-left: auto;
-  }
+    .help span {
+      margin-left: 10px;
+    }
 
-  .mensaje.admin {
-    justify-content: center;
-    margin-left: auto;
-    margin-right: auto;
-  }
+    @media (max-width: 600px) {
+      .services {
+        grid-template-columns: 1fr;
+      }
+    }
 
-  .mensaje .contenido {
-    background-color: #e9ecef;
-    border-radius: 15px;
-    padding: 10px;
-    position: relative;
-  }
+    .logo-textile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-  .mensaje.asesor .contenido {
-    background-color: #0d6efd;
-    color: white;
-  }
+    .logo-textile div {
+      line-height: 1.1;
+    }
 
-  .mensaje.admin .contenido {
-    background-color: #ffc107;
-    color: black;
-  }
+    .logo-textile small {
+      font-size: 0.8rem;
+      display: block;
+      color: #555;
+    }
 
-  .mensaje .texto {
-    white-space: pre-wrap;
-  }
+    #historialMensajes {
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border-radius: 10px;
+    }
 
-  .mensaje .meta {
-    font-size: 0.75rem;
-    margin-top: 5px;
-    opacity: 0.8;
-  }
+    .mensaje {
+      display: flex;
+      margin-bottom: 10px;
+      max-width: 80%;
+    }
+
+    .mensaje.afiliado {
+      justify-content: flex-start;
+    }
+
+    .mensaje.asesor {
+      justify-content: flex-end;
+      margin-left: auto;
+    }
+
+    .mensaje.admin {
+      justify-content: center;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .mensaje .contenido {
+      background-color: #e9ecef;
+      border-radius: 15px;
+      padding: 10px;
+      position: relative;
+    }
+
+    .mensaje.asesor .contenido {
+      background-color: #0d6efd;
+      color: white;
+    }
+
+    .mensaje.admin .contenido {
+      background-color: #ffc107;
+      color: black;
+    }
+
+    .mensaje .texto {
+      white-space: pre-wrap;
+    }
+
+    .mensaje .meta {
+      font-size: 0.75rem;
+      margin-top: 5px;
+      opacity: 0.8;
+    }
   </style>
 </head>
+
 <body>
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom mb-4">
-  <div class="container d-flex justify-content-between">
-    <a class="navbar-brand fw-bold logo-textile" href="#">
-      <img src="https://img.icons8.com/ios-filled/40/1e2c5e/sewing-machine.png" alt="Logo Textil" />
-      <div>
-        TEXTILEMPRENDE<br>
-        <small>FONDO DE EMPLEADOS</small>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom mb-4">
+    <div class="container d-flex justify-content-between">
+      <a class="navbar-brand fw-bold logo-textile" href="#">
+        <img src="https://img.icons8.com/ios-filled/40/1e2c5e/sewing-machine.png" alt="Logo Textil" />
+        <div>
+          TEXTILEMPRENDE<br>
+          <small>FONDO DE EMPLEADOS</small>
+        </div>
+      </a>
+      <div class="d-flex align-items-center gap-3">
+        <span id="username" class="fw-bold text-dark"></span>
+        <span>👤</span>
+        <a href="/login" class="btn btn-outline-primary">Cerrar sesión</a>
       </div>
-    </a>
-    <div class="d-flex align-items-center gap-3">
-      <span id="username" class="fw-bold text-dark"></span>
-      <span>👤</span>
-      <a href="/login" class="btn btn-outline-primary">Cerrar sesión</a>
     </div>
-  </div>
-</nav>
+  </nav>
 
-<main class="container text-center">
-  <h2 class="text-primary mb-5">Panel del Administrador</h2>
+  <main class="container text-center">
+    <h2 class="text-primary mb-5">Panel del Administrador</h2>
 
-  <div class="services">
-    <button class="service-btn text-decoration-none" data-section="clientes">
-      <div class="service">
-        <img src="https://img.icons8.com/ios-filled/50/1e2c5e/conference.png" alt="Clientes" />
-        <p>Información<br>de Clientes</p>
-      </div>
-    </button>
+    <div class="services">
+      <button class="service-btn text-decoration-none" data-section="clientes">
+        <div class="service">
+          <img src="https://img.icons8.com/ios-filled/50/1e2c5e/conference.png" alt="Clientes" />
+          <p>Información<br>de Clientes</p>
+        </div>
+      </button>
 
-    <button class="service-btn text-decoration-none" data-section="solicitudes">
-      <div class="service">
-        <img src="https://img.icons8.com/ios-filled/50/1e2c5e/document.png" alt="Solicitudes" />
-        <p>Solicitudes<br>de Clientes</p>
-      </div>
-    </button>
+      <button class="service-btn text-decoration-none" data-section="solicitudes">
+        <div class="service">
+          <img src="https://img.icons8.com/ios-filled/50/1e2c5e/document.png" alt="Solicitudes" />
+          <p>Solicitudes<br>de Clientes</p>
+        </div>
+      </button>
 
-    <button class="service-btn text-decoration-none" data-section="responder">
-      <div class="service">
-        <img src="https://img.icons8.com/ios-filled/50/1e2c5e/ok.png" alt="Responder" />
-        <p>Responder y<br>Verificar</p>
-      </div>
-    </button>
-  </div>
+      <button class="service-btn text-decoration-none" data-section="responder">
+        <div class="service">
+          <img src="https://img.icons8.com/ios-filled/50/1e2c5e/ok.png" alt="Responder" />
+          <p>Responder y<br>Verificar</p>
+        </div>
+      </button>
 
-  <div id="contenido-dinamico" class="mt-5 text-start p-4 border rounded bg-light" style="display: none;"></div>
-</main>
-<script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
-<script>
-  const token = localStorage.getItem('token');
-  if (token) {
-    const decoded = jwt_decode(token);
-    document.getElementById('username').textContent = decoded.nombre || decoded.correo || decoded.id_administrador || "Administrador";
+      <button class="service-btn text-decoration-none" data-section="estadisticas">
+        <div class="service">
+          <img src="https://img.icons8.com/ios-filled/50/1e2c5e/bar-chart.png" alt="Estadísticas" />
+          <p>Estadísticas<br>de Tickets</p>
+        </div>
+      </button>
+    </div>
 
-  } else {
-    document.getElementById('username').textContent = "Invitado";
-  }
-</script>
+    <div id="contenido-dinamico" class="mt-5 text-start p-4 border rounded bg-light" style="display: none;"></div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
+  <script>
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded = jwt_decode(token);
+      document.getElementById('username').textContent = decoded.nombre || decoded.correo || decoded.id_administrador || "Administrador";
 
-<script>
-const botones = document.querySelectorAll('.service-btn');
-const contenedor = document.getElementById('contenido-dinamico');
+    } else {
+      document.getElementById('username').textContent = "Invitado";
+    }
+  </script>
 
-const secciones = {
-  clientes: async () => {
-    try {
-      const res = await fetch('/api/admin/usuarios');
-      const data = await res.json();
+  <script>
+    const botones = document.querySelectorAll('.service-btn');
+    const contenedor = document.getElementById('contenido-dinamico');
 
-      let html = `
+    const secciones = {
+      clientes: async () => {
+        try {
+          const res = await fetch('/api/admin/usuarios');
+          const data = await res.json();
+
+          let html = `
         <h4 class="mb-3">Información de Clientes</h4>
         <div class="table-responsive">
           <table class="table table-bordered table-striped">
@@ -251,27 +260,27 @@ const secciones = {
         </div>
       `;
 
-      contenedor.innerHTML = html;
-      contenedor.style.display = 'block';
-      contenedor.scrollIntoView({ behavior: 'smooth' });
+          contenedor.innerHTML = html;
+          contenedor.style.display = 'block';
+          contenedor.scrollIntoView({ behavior: 'smooth' });
 
-    } catch (err) {
-      console.error(err);
-      contenedor.innerHTML = `<p class="text-danger">Error al cargar los datos.</p>`;
-      contenedor.style.display = 'block';
-    }
-  },
+        } catch (err) {
+          console.error(err);
+          contenedor.innerHTML = `<p class="text-danger">Error al cargar los datos.</p>`;
+          contenedor.style.display = 'block';
+        }
+      },
 
-solicitudes: async () => {
-  try {
-    const [resTickets, resUsuarios] = await Promise.all([
-      fetch('/api/admin/solicitudes'),
-      fetch('/api/admin/usuarios')
-    ]);
-    const tickets = await resTickets.json();
-    const asesores = (await resUsuarios.json()).asesores;
+      solicitudes: async () => {
+        try {
+          const [resTickets, resUsuarios] = await Promise.all([
+            fetch('/api/admin/solicitudes'),
+            fetch('/api/admin/usuarios')
+          ]);
+          const tickets = await resTickets.json();
+          const asesores = (await resUsuarios.json()).asesores;
 
-    let html = `
+          let html = `
     <div class="row">
       <div class="col-12">
         <div class="card shadow-sm">
@@ -370,97 +379,97 @@ solicitudes: async () => {
     </div>
     `;
 
-    contenedor.innerHTML = html;
-    contenedor.style.display = 'block';
-    contenedor.scrollIntoView({ behavior: 'smooth' });
+          contenedor.innerHTML = html;
+          contenedor.style.display = 'block';
+          contenedor.scrollIntoView({ behavior: 'smooth' });
 
-    // Activar modales
-    const modal = new bootstrap.Modal(document.getElementById('modalModificar'));
-    document.querySelectorAll('.modificar-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const ticket = JSON.parse(btn.getAttribute('data-ticket'));
-        document.getElementById('ticketId').value = ticket.id_ticket;
-        document.getElementById('descripcion').value = ticket.descripcion || '';
-        document.getElementById('estado').value = ticket.estado || '';
-        document.getElementById('asesor').value = asesores.find(a => a.nombre_asesor === ticket.nombre_asesor)?.id || '';
-        document.getElementById('prioridad').value = ticket.prioridad || '';
-        document.getElementById('respuesta').value = '';
-        const token = localStorage.getItem('token');
-        const decoded = jwt_decode(token); 
-        const id_administrador = decoded.id_administrador;
-        
+          // Activar modales
+          const modal = new bootstrap.Modal(document.getElementById('modalModificar'));
+          document.querySelectorAll('.modificar-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const ticket = JSON.parse(btn.getAttribute('data-ticket'));
+              document.getElementById('ticketId').value = ticket.id_ticket;
+              document.getElementById('descripcion').value = ticket.descripcion || '';
+              document.getElementById('estado').value = ticket.estado || '';
+              document.getElementById('asesor').value = asesores.find(a => a.nombre_asesor === ticket.nombre_asesor)?.id || '';
+              document.getElementById('prioridad').value = ticket.prioridad || '';
+              document.getElementById('respuesta').value = '';
+              const token = localStorage.getItem('token');
+              const decoded = jwt_decode(token);
+              const id_administrador = decoded.id_administrador;
 
-        // Historial de mensajes
 
-const historial = document.getElementById('historialMensajes');
-historial.innerHTML = ""; // Limpiar contenido previo
+              // Historial de mensajes
 
-if (Array.isArray(ticket.respuestas) && ticket.respuestas.length > 0) {
-  const mensajesOrdenados = ticket.respuestas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-  
-  mensajesOrdenados.forEach(mensaje => {
-    const divMensaje = document.createElement('div');
-    divMensaje.className = `mensaje ${mensaje.tipo}`;
+              const historial = document.getElementById('historialMensajes');
+              historial.innerHTML = ""; // Limpiar contenido previo
 
-    divMensaje.innerHTML = `
+              if (Array.isArray(ticket.respuestas) && ticket.respuestas.length > 0) {
+                const mensajesOrdenados = ticket.respuestas.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+                mensajesOrdenados.forEach(mensaje => {
+                  const divMensaje = document.createElement('div');
+                  divMensaje.className = `mensaje ${mensaje.tipo}`;
+
+                  divMensaje.innerHTML = `
       <div class="contenido">
         <div class="texto">${mensaje.mensaje}</div>
         <div class="meta">${new Date(mensaje.fecha).toLocaleString()}</div>
       </div>
     `;
-    
-    historial.appendChild(divMensaje);
-  });
-} else {
-  historial.innerHTML = `<p class="text-muted">No hay mensajes aún.</p>`;
-}
-modal.show();
 
-      });
-    });
+                  historial.appendChild(divMensaje);
+                });
+              } else {
+                historial.innerHTML = `<p class="text-muted">No hay mensajes aún.</p>`;
+              }
+              modal.show();
 
-document.getElementById('formModificar').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const token = localStorage.getItem('token');
-  const decoded = jwt_decode(token); 
-  const id = document.getElementById('ticketId').value;
-  const estado = document.getElementById('estado').value;
-  const descripcion = document.getElementById('descripcion').value;
-  const id_asesor = document.getElementById('asesor').value || null;
-  const respuesta = document.getElementById('respuesta').value;
-  const prioridad = document.getElementById('prioridad').value;  
+            });
+          });
 
-
-  try {
-    const res = await fetch(`/api/admin/solicitudes/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ estado, descripcion, id_asesor, respuesta, prioridad, id_administrador })
-    });
-
-    if (res.ok) {
-      modal.hide();
-      alert('Ticket actualizado correctamente');
-      secciones.solicitudes(); // Recargar vista
-    } else {
-      const err = await res.json();
-      alert('Error: ' + (err.error || 'No se pudo actualizar'));
-    }
-  } catch (error) {
-    console.error(error);
-    alert('Error al conectar con el servidor');
-  }
-});
+          document.getElementById('formModificar').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('token');
+            const decoded = jwt_decode(token);
+            const id = document.getElementById('ticketId').value;
+            const estado = document.getElementById('estado').value;
+            const descripcion = document.getElementById('descripcion').value;
+            const id_asesor = document.getElementById('asesor').value || null;
+            const respuesta = document.getElementById('respuesta').value;
+            const prioridad = document.getElementById('prioridad').value;
 
 
-  } catch (err) {
-    console.error(err);
-    contenedor.innerHTML = `<p class="text-danger">Error al cargar las solicitudes.</p>`;
-    contenedor.style.display = 'block';
-  }
-}
-,
-  responder: `
+            try {
+              const res = await fetch(`/api/admin/solicitudes/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estado, descripcion, id_asesor, respuesta, prioridad, id_administrador })
+              });
+
+              if (res.ok) {
+                modal.hide();
+                alert('Ticket actualizado correctamente');
+                secciones.solicitudes(); // Recargar vista
+              } else {
+                const err = await res.json();
+                alert('Error: ' + (err.error || 'No se pudo actualizar'));
+              }
+            } catch (error) {
+              console.error(error);
+              alert('Error al conectar con el servidor');
+            }
+          });
+
+
+        } catch (err) {
+          console.error(err);
+          contenedor.innerHTML = `<p class="text-danger">Error al cargar las solicitudes.</p>`;
+          contenedor.style.display = 'block';
+        }
+      }
+      ,
+      responder: `
     <h4>Responder y Verificar Solicitudes</h4>
     <p>Selecciona una solicitud para responder:</p>
     <select class="form-select mb-3">
@@ -469,28 +478,122 @@ document.getElementById('formModificar').addEventListener('submit', async (e) =>
     </select>
     <textarea class="form-control mb-3" rows="3" placeholder="Escribe la respuesta del administrador..."></textarea>
     <button class="btn btn-success">Enviar Respuesta</button>
-  `
-};
+  `,
 
-botones.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const seccion = btn.getAttribute('data-section');
-    const contenido = secciones[seccion];
-    if (typeof contenido === 'function') {
-      contenido();
-    } else {
-      contenedor.innerHTML = contenido;
-      contenedor.style.display = 'block';
-      contenedor.scrollIntoView({ behavior: 'smooth' });
+   estadisticas: async () => {
+  try {
+    const res = await fetch('/api/tickets/estadisticas', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+        // El token no es válido o no tiene permisos
+        console.error('Token inválido o expirado. Redirigiendo al login.');
+        localStorage.removeItem('token'); // Elimina el token inválido
+        window.location.href = '/login'; // Redirige a la página de login
+        return; // Detiene la ejecución de la función
+      }
+      throw new Error(`HTTP error! status: ${res.status}`);
     }
-  });
-});
-</script>
+    const data = await res.json();
+
+    // Preparar los datos para Chart.js
+    const labels = data.map(item => item.estado);
+    const values = data.map(item => item.total);
+
+    // Crear un elemento <canvas> donde se renderizará el gráfico
+    const canvasId = 'estadisticasChart';
+    let html = `
+      <h4 class="mb-3">Estadísticas de Tickets por Estado</h4>
+      <canvas id="${canvasId}"></canvas>
+    `;
+    contenedor.innerHTML = html;
+    contenedor.style.display = 'block';
+    contenedor.scrollIntoView({ behavior: 'smooth' });
+
+    // Obtener el contexto del canvas y crear el gráfico
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    new Chart(ctx, {
+      type: 'bar', // Puedes cambiar 'bar' por 'pie', 'line', etc.
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Total de Tickets',
+          data: values,
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(153, 102, 255, 0.7)',
+            'rgba(255, 159, 64, 0.7)'
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Cantidad de Tickets'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Estado del Ticket'
+            }
+          }
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Error al obtener las estadísticas:', error);
+    contenedor.innerHTML = `<p class="text-danger">Error al cargar las estadísticas de los tickets.</p>`;
+    contenedor.style.display = 'block';
+  }
+},
+
+
+    };
+
+
+    botones.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const seccion = btn.getAttribute('data-section');
+        const contenido = secciones[seccion];
+        if (typeof contenido === 'function') {
+          contenido();
+        } else {
+          contenedor.innerHTML = contenido;
+          contenedor.style.display = 'block';
+          contenedor.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+
+  </script>
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </body>
+
 </html>
