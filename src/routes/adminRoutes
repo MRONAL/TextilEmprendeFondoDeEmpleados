@@ -1,15 +1,21 @@
 // routes/adminRoutes.js
 const express = require('express');
 const router = express.Router();
+const verificarToken = require('../models/authMiddleware');
 
-const { obtenerUsuarios, obtenerSolicitudes, actualizarSolicitud
+
+const { obtenerUsuarios, obtenerSolicitudes, actualizarSolicitud,obtenerGraficoEstadoTickets
 } = require('../controllers/adminController');
 
 router.get('/usuarios', obtenerUsuarios);
 
 router.get('/solicitudes', obtenerSolicitudes);
 
+router.get('/estadisticas',obtenerGraficoEstadoTickets);
+
 router.put('/solicitudes/:id_ticket', actualizarSolicitud);
+
+
 
 module.exports = router;
 

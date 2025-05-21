@@ -595,26 +595,11 @@ document.getElementById('btnEnviarMensaje').addEventListener('click', async () =
           contenedor.innerHTML = `<p class="text-danger">Error al cargar las solicitudes.</p>`;
           contenedor.style.display = 'block';
         }
-      }
-      ,
+      },
+
    estadisticas: async () => {
   try {
-    const res = await fetch('/api/tickets/estadisticas', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    if (!res.ok) {
-      if (res.status === 401 || res.status === 403) {
-        // El token no es válido o no tiene permisos
-        console.error('Token inválido o expirado. Redirigiendo al login.');
-        localStorage.removeItem('token'); // Elimina el token inválido
-        window.location.href = '/login'; // Redirige a la página de login
-        return; // Detiene la ejecución de la función
-      }
-      throw new Error(`HTTP error! status: ${res.status}`);
-    }
+    const res = await fetch('/api/admin/estadisticas'); // asegúrate de que esta ruta es la correcta
     const data = await res.json();
 
     // Preparar los datos para Chart.js
@@ -631,10 +616,9 @@ document.getElementById('btnEnviarMensaje').addEventListener('click', async () =
     contenedor.style.display = 'block';
     contenedor.scrollIntoView({ behavior: 'smooth' });
 
-    // Obtener el contexto del canvas y crear el gráfico
     const ctx = document.getElementById(canvasId).getContext('2d');
     new Chart(ctx, {
-      type: 'bar', // Puedes cambiar 'bar' por 'pie', 'line', etc.
+      type: 'bar',
       data: {
         labels: labels,
         datasets: [{
@@ -677,16 +661,13 @@ document.getElementById('btnEnviarMensaje').addEventListener('click', async () =
         }
       }
     });
-
   } catch (error) {
-    console.error('Error al obtener las estadísticas:', error);
-    contenedor.innerHTML = `<p class="text-danger">Error al cargar las estadísticas de los tickets.</p>`;
-    contenedor.style.display = 'block';
+    console.error('Error al obtener estadísticas:', error);
+    contenedor.innerHTML = '<p style="color:red">No se pudieron cargar las estadísticas.</p>';
   }
-},
+}
 
-
-    };
+ };
 
 
     botones.forEach(btn => {

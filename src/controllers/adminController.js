@@ -1,6 +1,6 @@
 // controllers/adminController.js
-const { obtenerClientes, obtenerAsesores, actualizarTicket, obtenerTickets } = require('../models/admin');
-
+const { obtenerClientes, obtenerAsesores, actualizarTicket, obtenerTickets} = require('../models/admin');
+const {obtenerEstadisticasPorEstado}= require('../models/tickets')
 const obtenerUsuarios = async (req, res) => {
   try {
     const clientes = await obtenerClientes();
@@ -39,8 +39,17 @@ const actualizarSolicitud = async (req, res) => {
     res.status(500).json({ error: 'No se pudo actualizar el ticket' });
   }
 };
+const obtenerGraficoEstadoTickets = async (req, res) => {
+  try {
+    const datos = await obtenerEstadisticasPorEstado();
+    res.json(datos); // Array con { estado, total }
+  } catch (error) {
+    console.error('Error al obtener datos del gráfico:', error);
+    res.status(500).json({ error: 'No se pudieron obtener las estadísticas' });
+  }
+};
 
 
 module.exports = {
-  obtenerUsuarios, obtenerSolicitudes, actualizarSolicitud
+  obtenerUsuarios, obtenerSolicitudes, actualizarSolicitud,obtenerGraficoEstadoTickets
 };
