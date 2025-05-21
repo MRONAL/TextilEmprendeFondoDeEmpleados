@@ -304,11 +304,17 @@ let html = `
         const id_ticket = btn.getAttribute('data-ticket-id');
 
         try {
-          const res = await fetch(`/api/tickets/${id_ticket}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
+const res = await fetch(`/api/tickets/${id_ticket}`, {
+  headers: { 'Authorization': `Bearer ${token}` }
+});
 
-          const { ticket, mensajes } = await res.json();
+if (!res.ok) {
+  const text = await res.text(); // útil para ver qué HTML se está recibiendo
+  throw new Error(`HTTP ${res.status}: ${text}`);
+}
+
+const { ticket, mensajes } = await res.json();
+
 
           // Mostrar detalles
           document.getElementById('detalle-id').textContent = ticket.id_ticket;

@@ -2,15 +2,32 @@
 const pool = require('./DbConexion'); // tu conexión a PostgreSQL
 
 const crearTicket = async (usuario_id, categoria, descripcion) => {
+  // Obtener un asesor aleatorio
+  const asesorResult = await pool.query(`
+    SELECT id_asesor 
+    FROM asesor 
+    ORDER BY RANDOM() 
+    LIMIT 1;
+  `);
+
+  if (asesorResult.rows.length === 0) {
+    throw new Error("No hay asesores disponibles");
+  }
+
+  const id_asesor = asesorResult.rows[0].id_asesor;
+
+  // Insertar el ticket con id_asesor asignado
   const query = `
-    INSERT INTO ticket (id_afiliado, categoria, descripcion, estado, fecha_creacion)
-    VALUES ($1, $2, $3, 'pendiente', NOW())
+    INSERT INTO ticket (id_afiliado, id_asesor, categoria, descripcion, estado, fecha_creacion)
+    VALUES ($1, $2, $3, $4, 'pendiente', NOW())
     RETURNING *;
   `;
-  const values = [usuario_id, categoria, descripcion];
+
+  const values = [usuario_id, id_asesor, categoria, descripcion];
   const result = await pool.query(query, values);
   return result.rows[0];
 };
+
 
 const obtenerTicketsPorAfiliado = async (id_afiliado) => {
   const query = `

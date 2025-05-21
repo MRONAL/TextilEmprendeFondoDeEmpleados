@@ -6,7 +6,7 @@ const verificarToken = require('../models/authMiddleware');
 
 router.post('/dashboardAfiliado', verificarToken, crearTicketAfiliado );
 router.get('/ticketsAfiliado', verificarToken, listarTicketsAfiliado);
-router.get('tickets/:id_ticket', verificarToken, listarMensajes);
+router.get('/tickets/:id_ticket', verificarToken, listarMensajes);
 router.post('/:id_ticket/mensaje', verificarToken, enviarMensaje);
 
 

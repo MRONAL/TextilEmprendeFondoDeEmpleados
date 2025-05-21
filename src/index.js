@@ -59,3 +59,5 @@ app.get('/chatbot', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+const ticketsRoutes = require('./routes/ticketsRoutes');
+app.use('/api', ticketsRoutes);
